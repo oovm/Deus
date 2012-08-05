@@ -105,7 +105,7 @@ mapping[set_,x_]:=(Max[set]-3Min[set]+2x)/(3.0(Max[set]-Min[set]));
 Options[HanoiShow]={
 	TableStyle->{Brown},
 	PillarStyle->{RGBColor[{205,79,18}/255]},
-	DiskColor->ColorData[3]
+	DiskColor->ColorData["BrightBands"]
 };
 HanoiShow[states_,OptionsPattern[]]:=
 Block[{firststate,background,newstates,pn,gap,xs,HanoiDisk,DrawState,i},

@@ -10,9 +10,9 @@
 (**)
 (*Author:酱紫君*)
 (*Creation Date:2017-11-25*)
-(*Copyright:CC4.0 BY+NA+NC*)
+(*Copyright: GPL-3.0*)
 (**)
-(*该软件包遵从CC协议:署名、非商业性使用、相同方式共享*)
+(*该软件包遵从GNU通用公共许可证.*)
 (**)
 (*这里应该填这个函数的介绍*)
 (* ::Section:: *)
@@ -68,8 +68,8 @@ hanoiP[n_, p_] := hanoiP[n, p] =
 	First[Sort[v, Last[#2] > Last[#1] & ]]
 ];
 GenernizedHanoi[{{d_},{a_,___,b_}}]:={d,a,b};
-GenernizedHanoi[{tower_,pegs_}]:=
-Module[{a,pat,lp=Length[pegs],n,ans={},i,p,spread,back},
+GenernizedHanoi[{tower_,pegs_}]:=Module[
+	{a,pat,lp=Length[pegs],n,ans={},i,p,spread,back},
 	a=Drop[hanoiP[Length[tower],lp],-1];
 	pat=Table[Take[tower,{1+Sum[a[[i]],{i,1,n-1}],Sum[a[[i]],{i,1,n}]}],{n,lp-2}];
 	spread=Table[p=Drop[pegs,{2,n}];
@@ -83,11 +83,14 @@ Module[{a,pat,lp=Length[pegs],n,ans={},i,p,spread,back},
 	AppendTo[ans,{Last[tower],First[pegs],Last[pegs]}];
 	(AppendTo[ans,GenernizedHanoi[#1]]&)/@back;Partition[Flatten[ans],3]
 ];
-FrameStewartAlgorithm[numDisks_,numPegs_]:=
-Module[{t,sH=GenernizedHanoi[{Range[numDisks],Range[numPegs]}]},
-	FoldList[(t=#1;t[[#2[[2]]]]=Rest[t[[#2[[2]]]]];t[[Last[#2]]]=
-	Prepend[t[[Last[#2]]],First[#2]];t)&,Join[{Range[numDisks]},
-	Table[{},{numPegs-1}]],sH]
+FrameStewartAlgorithm[numDisks_,numPegs_]:=Module[
+	{t,sH=GenernizedHanoi[{Range[numDisks],Range[numPegs]}]},
+	FoldList[
+		(t=#1;t[[#2[[2]]]]=Rest[t[[#2[[2]]]]];
+		t[[Last[#2]]]=Prepend[t[[Last[#2]]],First[#2]];t)&,
+		Join[{Range[numDisks]},
+	Table[{},{numPegs-1}]],sH
+	]
 ];
 HanoiNum2Abc[{A_,B_,C_}]:=Block[{a,b,c,i},
 	Table[Piecewise[{{a,MemberQ[A,i]},{b,MemberQ[B,i]},{c,True}}],{i,Max[A,B,C]}]
@@ -104,18 +107,18 @@ HanoiMove[start_List,finish_List]:=
 ];
 (* ::Subsubsection:: *)
 (*HanoiShow*)
-DrawBackground[firststate_,tablestyle_List,pillarstyle_List]:=
+DrawBackground[firstState_,tableStyle_List,pillarStyle_List]:=
 Block[{pn,gap,xs,HanoiTable,height,thickness,HanoiPillar,i},
-		pn=Length@firststate;
+		pn=Length@firstState;
 		gap=1./GoldenRatio^2;
 		xs=Table[(1+gap)i,{i,-#,#}]&[(pn-1)/2];
 	HanoiTable=Rectangle[{-pn(gap+1)/2,0},{pn (gap+1)/2,-pn(gap+1)gap^2.5}];
-		height=gap^2(Length@Flatten@firststate+1);
+		height=gap^2(Length@Flatten@firstState+1);
 		thickness=height gap^2.5;
 	HanoiPillar[x0_]:=Rectangle[{-thickness/2+x0,height},{thickness/2+x0,0}];
 	Flatten[{
-		tablestyle,HanoiTable,
-		pillarstyle,HanoiPillar/@xs
+		tableStyle,HanoiTable,
+		pillarStyle,HanoiPillar/@xs
 	}]
 ];
 (*y\[Equal]k x+b/.Solve[{1\[Equal]b+k max,1/3\[Equal]b+k min},{b,k}]*)
@@ -123,13 +126,13 @@ mapping[set_,x_]:=(Max[set]-3Min[set]+2x)/(3.0(Max[set]-Min[set]));
 Options[HanoiShow]={
 	TableStyle->{Brown},
 	PillarStyle->{RGBColor[{205,79,18}/255]},
-	DiskColor->ColorData[3]
+	DiskColor->ColorData["BrightBands"]
 };
-HanoiShow[states_,OptionsPattern[]]:=
-Block[{firststate,background,newstates,pn,gap,xs,HanoiDisk,DrawState,i},
+HanoiShow[states_,OptionsPattern[]]:= Block[
+	{firststate,background,newStates,pn,gap,xs,HanoiDisk,DrawState,i},
 	firststate=First@states;
 	background=DrawBackground[firststate,OptionValue[TableStyle],OptionValue[PillarStyle]]//Graphics;
-	newstates=Map[mapping[firststate,#]&,states,1];
+	newStates=Map[mapping[firststate,#]&,states,1];
 	pn=Length@firststate;
 	gap=1./GoldenRatio^2;
 	xs=Table[(1+gap)i,{i,-#,#}]&[(pn-1)/2];
@@ -142,7 +145,7 @@ Block[{firststate,background,newstates,pn,gap,xs,HanoiDisk,DrawState,i},
 		disks=MapIndexed[HanoiDisk,Reverse/@state,{2}];
 		Show[background, Flatten@disks//Graphics]
 	];
-	DrawState/@newstates
+	DrawState/@newStates
 ];
 (* ::Subsubsection:: *)
 (*HanoiSteps*)
