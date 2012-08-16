@@ -146,7 +146,7 @@ formattingRules={
 };
 formattingRev={next`Plus->Plus,next`Times->Times,next`Divide->Divide};
 doMath[expr_]:=expr/.List->Composition[FromDigits,List]//ReleaseHold;
-Calculate100[input_List,target_Integer]:=Block[
+Calculate100[input_List,target_Integer:100]:=Block[
 	{curr=input,ans={},dup},
 	CheckAbort[Quiet@While[curr=!=False,
 		If[doMath@curr==target,
