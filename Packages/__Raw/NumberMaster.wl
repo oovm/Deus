@@ -18,9 +18,17 @@
 (* ::Section:: *)
 (*函数说明*)
 BeginPackage["NumberMaster`"];
-Poker24::usage = "经典问题,4张牌算24点";
+Poker24::usage = "经典问题,4张牌算24点\n
+	Poker[pList],使用列表pList中的数字计算24点\n
+	选项 Number->24,指定计算24点\n
+	选项 Extension->Min,允许使用阶乘,对数,开根凑配\n
+	选项 Extension->All,允许使用所有的二元运算凑配\n
+";
 Calculate100::usage = "经典问题,9个数字添加符号计算100";
-Proof1926::usage = "经典问题, 某两个人物生日的数字论证";
+Proof1926::usage = "经典问题, 某两个人物生日的数字论证\n
+	Proof1926[num1,num2],两个数字间论证相等\n
+	Proof1926[num1,num2,Number->num3],论证两个数字等于第三个数字\n
+";
 (* ::Section:: *)
 (*程序包正体*)
 (* ::Subsection::Closed:: *)

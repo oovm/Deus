@@ -78,7 +78,10 @@ GenernizedHanoi[{tower_,pegs_}]:=Module[
 		p[[2]]=i;
 		{pat[[n]],p},{n,lp-2}];
 	spread=Cases[spread,{{__},_}];
-	back=({First[#1],Join[{Last[Last[#1]]},Complement[Last[#1],{Last[Last[#1]],Last[pegs]}],{Last[pegs]}]}&)/@Reverse[spread];
+	back=(
+		{First[#1],Join[{Last[Last[#1]]},
+		Complement[Last[#1],{Last[Last[#1]],Last[pegs]}],{Last[pegs]}]}&
+	)/@Reverse[spread];
 	(AppendTo[ans,GenernizedHanoi[#1]]&)/@spread;
 	AppendTo[ans,{Last[tower],First[pegs],Last[pegs]}];
 	(AppendTo[ans,GenernizedHanoi[#1]]&)/@back;Partition[Flatten[ans],3]
