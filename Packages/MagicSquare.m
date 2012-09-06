@@ -1,28 +1,16 @@
-(* ::Package:: *)
-
-
-
-Magic::usage = "Magic[n]\:53ef\:4ee5\:751f\:6210n\[Times]n\:7684\:5e7b\:65b9.\r Magic[n,d]\:751f\:6210d\:7ef4\:7684n\:9636\:5e7b\:65b9.";
-MagicQ::usage = "MagicQ[n]\:68c0\:6d4b\:4e00\:4e2an\[Times]n\:5e7b\:65b9.\r MagicQ[n,3D]\:68c0\:6d4b\:4e00\:4e2an\[Times]n\[Times]n\:5e7b\:7acb\:65b9.";
-
-
-MagicSquare::usage = "\:5e7b\:65b9\:5305\:63d0\:4f9b\:4e86\:4e00\:7cfb\:5217\:5e7b\:65b9\:7684\:7b97\:6cd5.";
-Begin["`MagicSquare`"];
-
-
+Magic::usage = "Magic[n]可以生成n×n的幻方.\r Magic[n,d]生成d维的n阶幻方.";
+MagicQ::usage = "MagicQ[n]检测一个n×n幻方.\r MagicQ[n,3D]检测一个n×n×n幻立方.";
+MagicSquare::usage = "幻方包提供了一系列幻方的算法.";
+Begin["`Private`"];
 MagicSquare$Version="V1.4.0";
 MagicSquare$LastUpdate="2017-12-17";
-
-
-Magic::nosol="\:65e0\:89e3.";
-Magic::nodef="\:65e0\:5b9a\:4e49.";
-Magic::novpn="\:6570\:636e\:5e93\:8bf7\:6c42\:5931\:8d25,\:4f60\:53ef\:80fd\:9700\:8981VPN,\:6216\:8005\:4f60\:8981\:6c42\:7684\:6570\:636e\:91cf\:592a\:8fc7\:5de8\:5927,\:53ef\:4ee5\:4f7f\:7528 TimeConstraint \:9009\:9879\:589e\:52a0\:8bf7\:6c42\:65f6\:957f.";
+Magic::nosol="无解.";
+Magic::nodef="无定义.";
+Magic::novpn="数据库请求失败,你可能需要VPN,或者你要求的数据量太过巨大,可以使用 TimeConstraint 选项增加请求时长.";
 Options[Magic]={Method->"Simple",TimeConstraint->5};
 Magic[n_,d_,OptionsPattern[]]:=TimeConstrained[MagicLinker[n,d,OptionValue[Method]],OptionValue[TimeConstraint],Message[Magic::novpn]];
 MagicLinker[n_,d_,p_]:=URLExecute["http://magichypercube.com/rest/hypercube/"<>p<>"/"<>ToString[n]<>"/"<>ToString[d]<>"/true","CSV"];
 SetAttributes[{Magic,Magic3D},Listable];
-
-
 Magic[n_?OddQ]:=Block[{p},p=Range[n];
 Outer[Plus,p,p-(n+3)/2]~Mod~n*n+Outer[Plus,p,2p-2]~Mod~n+1];
 Magic[n_/;n~Mod~4==0]:=
@@ -48,8 +36,6 @@ Block[{p,M,i,j,k},
 	M
 ];
 Magic[x_]:=Message[Magic::nodef];
-
-
 Magic[n_,3]:=Magic3D[n];
 Magic3D[n_?OddQ]:=Table[n^2Mod[i-j+k-1,n]+n Mod[i-j-k,n]+Mod[i+j+k-2,n]+1,{i,1,n},{j,1,n},{k,1,n}];
 Magic3D[n_/;n~Mod~4==0]:=
@@ -79,41 +65,34 @@ Magic3DShow[n_]:={
 	MatrixForm/@Magic3D[n]
 };
 Magic[n_,"3D"]:=Magic3DShow@Magic3D[n];
-
-
 MagicQ[input_,"3D"]:=Magic3DQ[input];
 MagicQ[matrix_]:=
 Block[{SRow,SCol},
-	Echo["\:8be5\:77e9\:9635\:6240\:6709\:6570\:5b57\:603b\:548c\:4e3a"<>ToString@Total[Total/@matrix]];
+	Echo["该矩阵所有数字总和为"<>ToString@Total[Total/@matrix]];
 	SRow=Total/@matrix;
-	Echo["\:8be5\:77e9\:9635\:5404\:884c\:548c\:5206\:522b\:4e3a"<>ToString@SRow];
-	If[SameQ@@SRow,Echo["\:901a\:8fc7"],Return[False]];
+	Echo["该矩阵各行和分别为"<>ToString@SRow];
+	If[SameQ@@SRow,Echo["通过"],Return[False]];
 	SCol=Total/@(Transpose@matrix);
-	Echo["\:8be5\:77e9\:9635\:5404\:5217\:548c\:5206\:522b\:4e3a"<>ToString@SCol];
-	If[SameQ@@SCol,Echo["\:901a\:8fc7"],Return[False]];
-	Echo["\:8be5\:77e9\:9635\:4e3b\:5bf9\:89d2\:7ebf\:548c\:4e3a"<>ToString@Tr@matrix<>",\:8be5\:77e9\:9635\:4e3b\:526f\:89d2\:7ebf\:548c\:4e3a"<>	ToString@Tr[Reverse/@matrix]];
+	Echo["该矩阵各列和分别为"<>ToString@SCol];
+	If[SameQ@@SCol,Echo["通过"],Return[False]];
+	Echo["该矩阵主对角线和为"<>ToString@Tr@matrix<>",该矩阵主副角线和为"<>	ToString@Tr[Reverse/@matrix]];
 	If[SameQ[Tr@matrix,Tr[Reverse/@matrix]],True,False]
 ];
 Magic3DQ[x3d_]:=Block[{y3d,z3d,SF,LF,TF},
-	Echo["\:8be5\:7acb\:65b9\:77e9\:9635\:6240\:6709\:6570\:5b57\:603b\:548c\:4e3a"<>ToString@Total@Flatten@x3d];
+	Echo["该立方矩阵所有数字总和为"<>ToString@Total@Flatten@x3d];
 	{y3d,z3d}={Transpose[x3d,{3,1,2}],Transpose[x3d,{2,3,1}]};
 	SF={Total@Flatten@#&/@x3d,Total@Flatten@#&/@y3d,Total@Flatten@#&/@z3d};
-	Echo["\:8be5\:7acb\:65b9\:77e9\:9635\:5404\:9762\:548c\:5206\:522b\:4e3a"<>ToString@SF];
-	If[SameQ@@Flatten@SF,Echo["\:901a\:8fc7"],Return[False]];
+	Echo["该立方矩阵各面和分别为"<>ToString@SF];
+	If[SameQ@@Flatten@SF,Echo["通过"],Return[False]];
 	LF={Map[Total,x3d,{2}],Map[Total,y3d,{2}],Map[Total,z3d,{2}]};
-	Echo["\:8be5\:7acb\:65b9\:77e9\:9635\:5404\:5217\:548c\:5206\:522b\:4e3a"<>ToString@LF];
-	If[SameQ@@Flatten@LF,Echo["\:901a\:8fc7"],Return[False]];
+	Echo["该立方矩阵各列和分别为"<>ToString@LF];
+	If[SameQ@@Flatten@LF,Echo["通过"],Return[False]];
 	TF=Tr/@{x3d,y3d,z3d};
-	Echo["\:8be5\:7acb\:65b9\:77e9\:9635\:5404\:5bf9\:89d2\:7ebf\:548c\:5206\:522b\:4e3a"<>ToString@TF];
+	Echo["该立方矩阵各对角线和分别为"<>ToString@TF];
 	If[SameQ@@TF,True,False]
 ];
-
-
 End[] ;
 SetAttributes[
 	{Magic,MagicQ},
 	{Protected,ReadProtected}
 ];
-
-
-
