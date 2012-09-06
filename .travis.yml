@@ -1,0 +1,41 @@
+sudo: required
+dist: trusty
+branches:
+  only:
+    - master
+# 只需要自定义下面五个量
+env:
+ global:
+   - GITHUB_NAME: Gal@Builder            # 瞎填都可以
+   - GITHUB_MAIL: galseraph@gmail.com    # 瞎填都可以
+   - GITHUB_USER: GalAster               # 你的用户名
+   - GITHUB_REPO: Geis                   # 你的项目名
+   # 还有一个 TRAVIS_KEY 填在 travis settings 里!
+   # 教程: https://github.com/settings/tokens
+before_script:
+  - git config --global user.name "${GITHUB_NAME}"
+  - git config --global user.email "${GITHUB_MAIL}"
+  - export TZ='Asia/Shanghai'
+  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
+script:
+  - git clone --depth 20 --branch master --single-branch https://github.com/${GITHUB_USER}/${GITHUB_REPO}
+  - cd ${GITHUB_REPO}
+  - ver=`git tag | awk 'END {print}'`
+  - nVer=`echo $ver | awk -F. '{printf "%s.%s.%s\n",$1,$2,$3+1}'`
+  - echo $ver
+before_deploy:
+  - rm -rf .git
+  - rm -rf Documentation
+  - rm -rf Packages/_*
+  - cd ..
+  - tar -cJf ${GITHUB_REPO}.tar.xz ${GITHUB_REPO}
+deploy:
+  provider: releases
+  api_key:
+    secure: ${TRAVIS_KEY}
+  name: AutoBuild-$nVer
+  file:
+    - ${GITHUB_REPO}.tar.xz
+  skip_cleanup: true
+  on:
+    repo: ${GITHUB_USER}/${GITHUB_REPO}
