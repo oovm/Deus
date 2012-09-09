@@ -193,7 +193,36 @@ ArrayPlot@Partition[LinearSolve[M,ConstantArray[1,n^2],Modulus->2],n]
 res=RowReduce[Transpose@Join[Transpose@M,{ConstantArray[1,n^2]}],Modulus->2];
 ArrayPlot@Partition[res[[All,-1]],n];
 End[];
-
+polyominoQ[p_List]:=And@@((IntegerQ[Re[#]]&&IntegerQ[Im[#]])&/@p);
+rot[p_?polyominoQ]:=I*p;
+ref[p_?polyominoQ]:=(#-2 Re[#])&/@p;
+cyclic[p_]:=Module[
+	{i=p,r},
+	r=Reap@While[(i=rot[i])!=p,Sow@i];
+	Join[{p},r[[-1,1]]]
+]
+dihedral[p_?polyominoQ]:=Flatten[{#,ref[#]}&/@cyclic[p],1];
+canonical[p_?polyominoQ]:=Union[(#-(Min[Re[p]]+Min[Im[p]]*I))&/@p];
+allPieces[p_]:=Union[canonical/@dihedral[p]];
+polyominoes[1]={{0}};
+polyominoes[n_]:=polyominoes[n]=Module[
+	{f,fig,ans={}},
+	fig=((f=#1;({f,#1+1,f,#1+I,f,#1-1,f,#1-I}&)/@f)&)/@polyominoes[n-1];
+	fig=Partition[Flatten[fig],n];
+	f=Select[Union[canonical/@fig],Length[#1]==n&];
+	While[f!={},ans={ans,First[f]};
+	f=Complement[f,allPieces[First[f]]]];
+	Partition[Flatten[ans],n]
+];
+matrify=SparseArray@Thread[ReIm[#+(1+I)]->1]&;
+Options[TetrisRank]={ImageSize->60};
+TetrisRank[n_Integer,OptionsPattern[]]:=Module[
+	{reg =ArrayMesh@*matrify/@polyominoes[n]},
+	Table[MeshRegion[
+		reg[[i]],ImageSize->OptionValue[ImageSize],
+		MeshCellStyle-> {1->Black,2->ColorData[101,"ColorFunction"][i]}
+	],{i,Length[reg]}]
+];
 (* ::Subsection::Closed:: *)
 (*附加设置*)
 End[] ;
