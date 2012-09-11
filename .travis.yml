@@ -13,17 +13,21 @@ env:
    # 还有一个 TRAVIS_KEY 填在 travis settings 里!
    # 教程: https://github.com/settings/tokens
 before_script:
+  - export TZ='Asia/Shanghai'
   - git config --global user.name "${GITHUB_NAME}"
   - git config --global user.email "${GITHUB_MAIL}"
-  - export TZ='Asia/Shanghai'
-  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 script:
-  - git clone --depth 20 --branch master --single-branch https://github.com/${GITHUB_USER}/${GITHUB_REPO}
+  # 使用要求 10 次提交之类有 tag 存在, 名称必须为 v1.0.0 类似的形式
+  - git clone --depth 10 --branch master --single-branch https://github.com/${GITHUB_USER}/${GITHUB_REPO}
   - cd ${GITHUB_REPO}
-  - ver=`git tag | awk 'END {print}'`
+  - ver=`git describe --abbrev=0 --tags`
   - nVer=`echo $ver | awk -F. '{printf "%s.%s.%s\n",$1,$2,$3+1}'`
-  - echo $ver
+  - echo $nVer
+  - cd ..
 before_deploy:
+  - git tag -a "$nVer" -m "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
+  - cd ${GITHUB_REPO}
+  # 清理工程文件
   - rm -rf .git
   - rm -rf Documentation
   - rm -rf Packages/_*
