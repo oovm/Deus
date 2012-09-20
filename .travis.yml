@@ -23,23 +23,26 @@ script:
   - ver=`git describe --abbrev=0 --tags`
   - nVer=`echo $ver | awk -F. '{printf "%s.%s.%s\n",$1,$2,$3+1}'`
   - echo $nVer
-  - cd ..
+  - cd .. && git tag -a "$nVer" -m "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 before_deploy:
-  - git tag -a "$nVer" -m "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
   # 清理工程文件
   - cd ${GITHUB_REPO}
   - rm -f .gitattributes
   - rm -f .gitignore
   - rm -f .travis.yml
+  - rm -f package.json
+  - rm -f .editorconfig
+  - rm -f yarn.lock
   - rm -rf .git
-  - rm -rf Packages/_*
+  - rm -rf docs
+  - rm -rf Packages/_Dev
   - rm -rf Resources/ico
-  - cd .. &&  - tar -cJf ${GITHUB_REPO}.tar.xz ${GITHUB_REPO}
+  - cd .. && tar -cJf ${GITHUB_REPO}.tar.xz ${GITHUB_REPO}
   # 最小化发布
   - cd ${GITHUB_REPO}
   - rm -rf Documentation
   - rm -rf Resources
-  - cd .. &&  - tar -cJf ${GITHUB_REPO}.min.tar.xz ${GITHUB_REPO}
+  - cd .. && tar -cJf ${GITHUB_REPO}.min.tar.xz ${GITHUB_REPO}
 deploy:
   provider: releases
   prerelease: true
