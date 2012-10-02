@@ -1,3 +1,27 @@
+(* ::Package:: *)
+(* ::Title:: *)
+(*NumberMaster(珠玑妙算)*)
+(* ::Subchapter:: *)
+(*程序包介绍*)
+(* ::Text:: *)
+(*Mathematica Package*)
+(*Created by Mathematica Plugin for IntelliJ IDEA*)
+(*Establish from GalAster's template*)
+(**)
+(*Author:酱紫君*)
+(*Creation Date:2017-12-20*)
+(*Copyright: Mozilla Public License Version 2.0*)
+(* ::Program:: *)
+(*1.软件产品再发布时包含一份原始许可声明和版权声明。*)
+(*2.提供快速的专利授权。*)
+(*3.不得使用其原始商标。*)
+(*4.如果修改了源代码，包含一份代码修改说明。*)
+(**)
+(* ::Text:: *)
+(*这里应该填这个函数的介绍*)
+(* ::Section:: *)
+(*函数说明*)
+BeginPackage["NumberMaster`"];
 Poker24::usage = "经典问题,4张牌算24点\n
 	Poker[pList],使用列表pList中的数字计算24点\n
 	选项 Number->24,指定计算24点\n
@@ -9,15 +33,39 @@ Proof1926::usage = "经典问题, 某两个人物生日的数字论证\n
 	Proof1926[num1,num2],两个数字间论证相等\n
 	Proof1926[num1,num2,Number->num3],论证两个数字等于第三个数字\n
 ";
+(* ::Section:: *)
+(*程序包正体*)
+(* ::Subsection::Closed:: *)
+(*主设置*)
 NumberMaster::usage = "程序包的说明,这里抄一遍";
-Begin["`NumberMaster`"];
+Begin["`Private`"];
+(* ::Subsection::Closed:: *)
+(*主体代码*)
 NumberMaster$Version = "V1.6";
 NumberMaster$LastUpdate = "2017-12-24";
+(* ::Subsubsection:: *)
+(*运算符重载,减枝*)
 div[a_, 0] := ComplexInfinity;
 log[a_, b_] := Log[a, b];
 pow[a_, b_] := Power[a, b];
 root[a_, b_] := pow[a, 1 / b];
 reduceRule = log[a_, pow[b_, c_]] :> c + log[a, b];
+(*
+div[a_,b_]:=Indeterminate/;Abs[b]>10^10;
+root[a_,b_]:=Indeterminate/;Abs[a]>10^10;
+pow[a_,pow[b_,c_]]:=$Failed;
+pow[a_,b_/;b>10]:=$Failed;
+pow[a_,b_/;b<0]:=If[a<=0,$Failed,Power[a,b]];
+pow[a_,ComplexInfinity]:=$Failed;
+log[1,b_]:=$Failed;
+log[a_,b_/;b<0]:=$Failed;
+log[a_/;a<0,b_]:=$Failed;
+root[a_,0]:=$Failed;
+root[a_/;a<=0,b_]:=$Failed;
+div[a_,b_]:=$Failed/;b>10^3;
+log[a_,b_]:=$Failed/;a<0;
+root[a_,b_]:=$Failed;
+*)
 plus[a_, b_] := Plus[a, b];
 minus[a_, b_] := Subtract[a, b];
 times[a_, b_] := Times[a, b];
@@ -28,9 +76,13 @@ root[a_, b_] := pow[a, 1 / b];
 opsName = Thread[ {plus, minus, times, div, pow, log, root, aa, cc} ->
 	{Plus, Subtract, Times, Divide, Power, Log, Surd, FactorialPower, Binomial}
 ];
+(* ::Subsubsection:: *)
+(*卡特兰树*)
 treeR[1] = n;
 treeR[n_] := treeR[n] = Table[o[treeR[a], treeR[n - a]], {a, 1, n - 1}];
 treeC[n_] := Flatten[treeR[n] //. {o[a_List, b_] :> (o[#, b]& /@ a), o[a_, b_List] :> (o[a, #]& /@ b)}];
+(* ::Subsubsection:: *)
+(*Poker24*)
 PokerFilter[l_Integer] := Block[
 	{nn, oo, ff, cal},
 	nn = Array[ToExpression["n" <> ToString@#]&, l];
@@ -79,6 +131,8 @@ Poker24[input_, OptionsPattern[]] := Block[
 		__, Poker24Off[input, goal, Rule -> OptionValue[Extension]]
 	] /. opsName
 ];
+(* ::Subsubsection:: *)
+(*Calculate100*)
 next`ops = HoldForm /@ {Plus, Times, Divide, Subtract};
 (nextOp[#1] = #2)& @@@ Most@Transpose@{next`ops, RotateLeft@next`ops};
 next`children = True;
@@ -115,6 +169,8 @@ Calculate100[input_List, target_Integer : 100] := Block[
 	dup = ReleaseHold[# /. Thread[input -> CharacterRange[97, 96 + Length@input]]]&;
 	DeleteDuplicatesBy[HoldForm /@ ans /. formattingRev, dup]
 ];
+(* ::Subsubsection:: *)
+(*Proof1926*)
 Options[Calculate100TC] = {TimeConstraint -> 2};
 Calculate100TC[input_List, target_Integer, OptionsPattern[]] := Block[
 	{curr = input, ans = {}},
@@ -145,8 +201,11 @@ Proof1926[input_, target_, OptionsPattern[]] := Block[
 	out = err@ans == tar /. he;
 	If[OptionValue[Number] === Automatic, Return[out], Return[out == OptionValue[Number]]]
 ];
+(* ::Subsection::Closed:: *)
+(*附加设置*)
+End[];
 SetAttributes[
 	{Poker24, Calculate100, Proof1926},
 	{Protected, ReadProtected}
 ];
-End[]
+EndPackage[]
