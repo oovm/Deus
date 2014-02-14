@@ -3,8 +3,8 @@ module.exports = {
 	locales: {
 		'/': {
 			lang: 'zh-CN',
-			title: 'Illusory',
-			description: 'Mathematica 视觉盛宴!'
+			title: 'Deus',
+			description: 'No game no life'
 		}
 	},
 	themeConfig: {
