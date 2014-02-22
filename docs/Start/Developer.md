@@ -8,7 +8,7 @@
 
 接着打开如下或任意 `$Path` 目录
 ```haskell
-PacletUninstall["Illusory"]
+PacletUninstall["Deus"]
 SystemOpen[FileNameJoin@{$UserBaseDirectory, "Applications"}]
 ```
 接着使用 git 同步以下目录:

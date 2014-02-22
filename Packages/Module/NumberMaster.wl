@@ -163,7 +163,8 @@ Calculate100[input_List, target_Integer : 100] := Block[
 	CheckAbort[Quiet@While[curr =!= False,
 		If[doMath@curr == target,
 			PrintTemporary[curr /. formattingRules];
-			AppendTo[ans, curr /. formattingRules]];
+			AppendTo[ans, curr /. formattingRules]
+		];
 		curr = next@curr
 	];Echo["所有计算已完成!", "运算: "], Echo["用户中断了计算!", "运算: "]];
 	dup = ReleaseHold[# /. Thread[input -> CharacterRange[97, 96 + Length@input]]]&;
