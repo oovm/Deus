@@ -1,6 +1,6 @@
 # Functions
 
-> NumberMaster 模块包含了一系列经典的数字谜题.
+NumberMaster 模块包含了一系列经典的数字谜题.
 
 - 模块可单独加载
 
@@ -10,7 +10,7 @@ Import["https://deus.netlify.com/pkg/NumberMaster.wl"];
 
 ## Poker24
 
-> 经典谜题, 24点
+经典谜题, 24点
 
 ### 参数说明
 
