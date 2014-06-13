@@ -54,11 +54,10 @@ Pillar3Disp[t_, {i_, j_}] := Module[{q = t, d},
 	q[[j]] = Prepend[q[[j]], d];
 	q
 ];
-Options[HanoiMove] = {Pillar -> 3};
-HanoiMove[n_Integer, OptionsPattern[]] := If[
-	OptionValue[Pillar] == 3,
+HanoiMove[n_Integer, p_Integer] := If[
+	p == 3,
 	FoldList[Pillar3Disp, {Range[n], {}, {}}, Hanoi3Pillar[n, 1, 3]],
-	FrameStewartAlgorithm[n, OptionValue[Pillar]]
+	FrameStewartAlgorithm[n, p]
 ];
 sumsP[s_, i_] := {} /; (s < i) || (i == 0);
 sumsP[s_, s_] := {Table[1, {s}]};

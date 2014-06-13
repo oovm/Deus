@@ -41,6 +41,13 @@ module.exports = {
 				children: [
 					'/HanoiTower/'
 				]
+			},
+			{
+				title: 'Sudoku 模块',
+				children: [
+					'/Sudoku/',
+					'/Sudoku/Object.md'
+				]
 			}
 		]
 	},
