@@ -102,62 +102,6 @@ AppendTo[history,{hLast,cLast}];]&,{"Rock","Paper","Scissors"}]],displayPlay[hLa
   chooseGo2[data_]:=Mod[bestGuess[data]+1,3,1];)];
 
 
-
-(* ::Subsubsection:: *)
-(*数独程序块*)
-SetAttributes[{SudokuFX3,SudokuExc},HoldAll];
-(*本程序包数独的标准格式是一个9×9的矩阵,里面只能填0到9,0表示待解*)
-(*Coded by Mr. Wizard's
-Thanks for Morphie's commit,it's helpful
-but it's still very hard to understand.*)
-(*SudokuLinked returns a list of the values at all locations that constrain the passed location,Delete is used*)
-(*to ensure that the value of the passed location is not included in the list*)
-SudokuLinked[m_][u_,v_,r_,c_]:={m[[u,All,r]]~Delete~{v,c},m[[All,v,All,c]]~Delete~{u,r},m[[u,v]]~Delete~{r,c}};
-(*SudokuPof2 is 1|2|4|8|...|256*)
-SudokuPof2=Alternatives@@(2^Range[0,8]);
-SudokuFX1=BitOr@@Cases[#,SudokuPof2,-1]&;
-SudokuFX2=BitOr[#,#2]-#&;
-(*SudokuFX1 is used to find all the values that are already claimed by SudokuLinked locations*)
-(*SudokuFX2 then used to subtract out those cases from the unsolved locations*)
-(*note HoldAll attr above:SudokuFX3 and SudokuExc are the only two functions which directly modify the board*)
-SudokuFX3[m_]:=(m[[##]]=SudokuFX2[SudokuFX1@SudokuLinked[m][##],m[[##]]])&;
-SudokuExc[m_][c__]:=If[#!={},{m[[c]]}=#,""]&@Cases[SudokuFX2[BitOr@@#,m[[c]]]&/@Flatten/@SudokuLinked[m]@c,Except[0],1,1];
-(*between them SudokuLoop and SudokuSplit combine to solve the sudoku puzzle*)
-(*each puzzle location is used as a bitvector to show possibles,i.e.511 means all are possible,*)
-(*256 means only 8 is possible,1 means only 0 is possible (we're using 0-8,instead of 1-9)*)
-(*FixedPoint applies SudokuFX3 and SudokuExc repeatedly to all locations that are not yet solved (=to a SudokuPof2) "good" is*)
-(*a list of these positions,m (the modified board) is returned*)
-SudokuLoop[board_]:=Block[{m=board},(FixedPoint[Block[{good=Position[m,Except[SudokuPof2,_Integer],{-1}]},SudokuFX3[m]@@@good;SudokuExc[m]@@@good]&,{}];m)];
-(*returns the position of the element {w,x,y,z} that is most nearly a power of 2,for example 48 has only*)
-(*two possibles:4 or 5 (48=2^4+2^5)*)
-SudokuNear=Position[#,Min@#,-1,1][[1]]&[Map[#~Count~1&,IntegerDigits[#,2,9],{-2}]/.1->10]&;
-(*bad puzzle boards (those with a 0=no possibles) are replaced with an empty sequence,which effectively*)
-(*backtracks,going on to the next ReplacePart substitution (see below),solved boards are Throw'n,*)
-(*and the rest are recursively solved.Solving involves working on locations that are nearly solved,*)
-(*ReplacePart replaces those locations with all possible values,lowest to highest,for example*)
-(*48 (possibles=4 or 5) would be replaced by 16 (2^4),then 32 (2^5)*)
-SudokuSplit[board_]/;MemberQ[board,0,{-1}]:=Sequence[];
-SudokuSplit[board_]/;MatchQ[Flatten@board,{SudokuPof2..}]:=Throw[board];
-SudokuSplit[board_]:=With[{c=SudokuNear@board},SudokuSplit@SudokuLoop@ReplacePart[board,c->#]&/@First/@(2^(Reverse@IntegerDigits[board~Extract~c,2]~Position~1-1))];
-(*0's become 511,everything else becomes 2^(n-1) and the puzzles are partitioned into blocks of 3*)
-SudokuPrep=2^(#~Partition~{3,3}-1)/.1/2->511&;
-(*SudokuSolverFast is the main solving function,upon completion we have a list of lists of the digits to be summed*)
-(*the base 2 Log and "+1" are there because all work is done with numbers 2^(n-1)*)
-(*"Catch" should get the complete boards Throw'n in SudokuSplit above*)
-SudokuSolverFast=2~Log~Catch[SudokuSplit@SudokuLoop@SudokuPrep@#]+1&;
-
-ShowMarking[marking_]:=Block[{},Graphics[
-  Table[{EdgeForm[Thin],If[EvenQ[Floor[(j-1)/3]+Floor[(i-1)/3]*3],
-    Lighter[Gray,0.5],White],Rectangle[{i,j},{i+1,j+1}],Black,
-    If[KeyExistsQ[marking,{i,10-j}],
-      Text[Style[marking[{i,10-j}],Large],{i+0.5,j+0.5}]]},{i,1,9},{j,1,9}]]];
-initialHard=<|{1,6}->6,{1,8}->5,{2,1}->2,{2,3}->7,{2,5}->8,{3,3}->4,
-  {4,2}->6,{4,6}->5,{5,3}->8,{5,5}->4,{5,7}->1,{6,4}->3,{6,8}->9,
-  {7,7}->7,{8,5}->1,{8,7}->8,{8,9}->4,{9,2}->3,{9,4}->2|>;
-ShowMarking[initialHard](*需要写一个转换器*)
-
-
-
 (* ::Subsubsection:: *)
 (*扫雷程序块*)
 MineLayout[{m_,n_,k_}]:=Block[{M,foo,bar,list},
