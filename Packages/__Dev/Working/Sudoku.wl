@@ -18,7 +18,8 @@
 (* ::Section:: *)
 (*函数说明*)
 BeginPackage["Sudoku`"];
-GraphRPS::usage = "GraphRPS[n]给出n元猜拳的胜负判定图.";
+SudokuObject::usage = "";
+SudokuPlot::usage = "";
 (* ::Section:: *)
 (*程序包正体*)
 (* ::Subsection::Closed:: *)
@@ -33,18 +34,22 @@ Begin["`Private`"];
 
 (* ::Subsubsection:: *)
 (*Sudoku display*)
-SudokuPlot[mat_?MatrixQ] := Module[
+Options[SudokuPlot] = {FontSize -> Large, ImageSize -> Large};
+SudokuPlot[mat_?MatrixQ, OptionsPattern[]] := Module[
 	{bg, color, foo},
 	bg = If[EvenQ[Floor[(#2 - 1) / 3] + Floor[(#1 - 1) / 3] * 3], Lighter[Gray, 0.5], White]&;
-	color = Switch[#, _?Positive, Style[#, Large, Black], _?Negative, Style[#, Red, Large], _, ""]&;
+	color = Switch[#, _?Positive, Style[#, Large, Black], _?Negative, Style[#, Red, OptionValue[FontSize]], _, ""]&;
 	foo[{i_, j_} -> k_] := {EdgeForm[Thin], bg[i, j], Rectangle[{i, j}, {i + 1, j + 1}], Text[color@k, {i + 0.5, j + 0.5}]};
-	Graphics[foo /@ Thread[Flatten[Table[{i, j}, {i, 1, 9}, {j, 1, 9}], 1] -> Flatten[mat]]]
+	Graphics[foo /@ Thread[Flatten[Table[{i, j}, {i, 1, 9}, {j, 1, 9}], 1] -> Flatten[mat]],
+		ImageSize -> OptionValue[ImageSize]
+	]
 ];
 SudokuForm[mat_] := Module[
-	{t = Length[mat], styles, bg},
+	{t = Length[mat], styles, bg, fmt},
+	fmt = Map[If[NonPositive@#, \[Placeholder], #] &, mat, {2}];
 	styles = {{Thickness[2], Sequence @@ Table[True, {Sqrt[t] - 1}]}};
 	bg = Flatten[Table[{i, j} -> If[EvenQ[Plus @@ Floor[{i - 1, j - 1} / Sqrt[t]]], Darker[White, 0.3], White], {i, t}, {j, t}]];
-	Style[Grid[mat /. {0 :> \[Placeholder]}, Dividers -> {styles, styles}, Background -> {Automatic, Automatic, bg}, ItemSize -> {1.8, 1.8}], 14, "Label"]
+	Style[Grid[fmt, Dividers -> {styles, styles}, Background -> {Automatic, Automatic, bg}, ItemSize -> {1.8, 1.8}], 14, "Label"]
 ];
 SudokuObject /: MakeBoxes[SudokuObject[expr_], StandardForm] := With[
 	{r = ToBoxes@SudokuForm@expr},

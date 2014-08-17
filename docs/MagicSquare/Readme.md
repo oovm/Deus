@@ -2,6 +2,10 @@
 
 MagicSquare 模块
 
+::: danger On Hold
+Need reconstruction
+:::
+
 - 模块可单独加载
 
 ```haskell
