@@ -66,6 +66,160 @@ SudokuObject /: MakeBoxes[SudokuObject[expr_], TraditionalForm] := With[
 
 
 
+
+blockPosition[{i_, j_}, size_] := blockPosition[{i, j}, size] = Sequence @@ Partition[Range[size], Sqrt[size]][[Ceiling /@ ({i, j} / Sqrt[size])]];
+placeNumber[n_, {i_, j_}, extra_String : ""] := Block[
+	{size = Length[choices]},
+	If[
+		MemberQ[choices[[i, j]], n],
+		choices[[i, j]] = {};
+		choices[[i]] = (DeleteCases[#1, n] & ) /@ choices[[i]];
+		choices[[All, j]] = (DeleteCases[#1, n] & ) /@ choices[[All, j]];
+		choices[[blockPosition[{i, j}, size]]] = Map[DeleteCases[#1, n] &, choices[[blockPosition[{i, j}, size]]], {2}];
+		If[extra != "",
+			If[
+				(extra == "both" || extra == "diagonal") && i == j,
+				choices = MapAt[DeleteCases[#1, n] & , choices, Table[{k, k}, {k, 1, size}]]
+			];
+			If[
+				(extra == "both" || extra == "antidiagonal") && i + j == size + 1,
+				choices = MapAt[DeleteCases[#1, n] & , choices, Table[{k, size + 1 - k}, {k, 1, size}]]
+			]
+		];
+		result[[i, j]] = n,
+		Throw[placedNumbers = size^2 + 1]
+	]
+];
+
+
+
+singleNumber[v_] := With[
+	{u = Flatten[Cases[Split[Sort[Flatten[v]]], {_}]]},
+	If[u != {},
+		With[
+			{w = ((Position[v, #1] & ) /@ u)[[All, 1, 1]]},
+			If[
+				Unequal @@ w,
+				ReplacePart[v, List /@ u, List /@ w, List /@ Range[Length[u]]],
+				Throw[placedNumbers = size^2 + 1]
+			]
+		], v
+	]
+];
+
+
+reduceWith[rule_] := With[
+	{t = Sqrt[Length[choices]]},
+	choices = rule /@ choices;
+	choices = Transpose[rule /@ Transpose[choices]];
+	choices = rule /@ (Flatten[#1, 1] & ) /@ Flatten[Partition[choices, {t, t}], 1];
+	choices = Flatten[(MapThread[Join, ##1] & ) /@ Partition[(Partition[#1, t] & ) /@ choices, t], 1];
+	If[placedNumbers != Count[choices, {}, {-2}], Throw[placedNumbers = size^2 + 1]]
+];
+
+
+twins[v_] := With[
+	{z = Cases[Split[Sort[Cases[v, {_, _}]]], {a_, a_} :> a]},
+	If[z == {}, v, (If[MemberQ[z, #1], #1, Complement[#1, Flatten[z]]] & ) /@ v]
+];
+
+
+
+reduceFromBlocks := Block[
+	{v, aux},
+	aux = Partition[Range[size], Sqrt[size]];
+	Do[
+		v = choices[[blockPosition[{1, 1} + Sqrt[size] * {i - 1, j - 1}, size]]];
+		Do[With[
+			{w = Complement[Flatten[v[[k]]], Flatten[Drop[v, {k}]]]},
+			If[w != {}, choices[[k + (i - 1) * Sqrt[size]]] = (Complement[#1, w] & ) /@ choices[[  k + (i - 1) * Sqrt[size]]]]
+		], {k, 1, Sqrt[size]}
+		];
+		v = Transpose[v];
+		Do[
+			With[
+				{w = Complement[Flatten[v[[k]]], Flatten[Drop[v, {k}]]]},
+				If[w != {}, choices[[All, k + (j - 1) * Sqrt[size]]] = (Complement[#1, w] & ) /@
+					choices[[All, k + (j - 1) * Sqrt[size]]]
+				]
+			],
+			{k, 1, Sqrt[size]}
+		];
+		choices[[blockPosition[{1, 1} + Sqrt[size] * {i - 1, j - 1}, size]]] = Transpose[v],
+		{i, 1, Sqrt[size]}, {j, 1, Sqrt[size]}
+	];
+	If[placedNumbers != Count[choices, {}, {-2}], Throw[placedNumbers = size^2 + 1]]
+];
+
+SudokuSolverSeed[
+	arg_,
+	nSol : _Integer | Infinity : 1,
+	printSplit : True | False : True,
+	extra : "" | "diagonal" | "antidiagonal" | "both" : ""
+] := Block[
+	{mat, size, choices, tobeDone, result, solutions, placedNumbers, z},
+	mat = Which[Head[arg] === Grid, arg[[1]], Head[arg] === SparseArray, Normal[arg], True, arg];
+	size = Length[mat];
+	choices = Array[Range[size] & , {size, size}];
+	result = Array[0 & , {size, size}];
+	z = Position[mat, _Integer?Positive];
+	placedNumbers = Length[z];
+	Catch[MapThread[placeNumber[#1, #2, extra] & , {Extract[mat, z], z}];
+	If[placedNumbers != Count[choices, {}, {-2}],
+		placedNumbers = size^2 + 1]
+	];
+	solutions = {};
+	tobeDone = If[placedNumbers <= size^2, {choices}, {}];
+	splitCounter = 0;
+	While[tobeDone != {} && Length[solutions] < nSol,
+		choices = tobeDone[[-1]];
+		placedNumbers = Count[choices, {}, {-2}];
+		Catch[reduceWith[singleNumber]];
+		If[placedNumbers <= size^2, placedNumbers = Count[choices, {}, {-2}]];
+		tobeDone = Most[tobeDone];
+		While[placedNumbers < size^2,
+			Catch[While[(z = Position[choices, {_}]) != {} && placedNumbers < size^2,
+				placedNumbers = placedNumbers + Length[z];
+				MapThread[placeNumber[#1, #2,
+					extra] & , {Flatten[Extract[choices, z]], z}];
+				reduceWith[singleNumber]
+			];
+			z = choices;
+			reduceWith[twins];
+			If[z != choices, Throw[reduceWith[singleNumber]]];
+			reduceFromBlocks;
+			If[z != choices, Throw[reduceWith[ singleNumber]]];
+			If[placedNumbers < size^2,
+				splitCounter++;
+				z = Min[Map[Length, choices, {2}] /. 0 -> size + 1];
+				z = Position[choices, _?(Length[#1] == z & ), {-2}];
+				pos = {{0, 0}, 3 * size};
+				Do[ With[
+					{m = Count[{choices[[z[[i, 1]]]], choices[[All, z[[i, 2]]]], choices[[blockPosition[z[[i]], size]]]}, {}, {-2}]},
+					If[m < pos[[2]], pos = {z[[i]], m}]
+				], {i, 1, Length[z]}
+				];
+				pos = pos[[1]];
+				AppendTo[tobeDone, ReplacePart[choices, Rest[choices[[pos[[1]], pos[[2]]]]], pos]];
+				choices[[pos[[1]], pos[[2]]]] = Take[choices[[pos[[1]], pos[[2]]]], 1]
+			]
+			]];
+		If[placedNumbers == size^2, AppendTo[solutions, result]]
+	];
+	If[nSol == 1 && solutions != {}, solutions[[1]], solutions]
+];
+
+
+
+
+
+
+
+
+
+
+
+
 (*SudokuSolverMethod["LinearProgramming"]*)
 SetAttributes[{SudokuFX3, SudokuExc}, HoldAll];
 (*数独的标准格式是一个9×9的矩阵,里面只能填0到9,0表示待解*)
