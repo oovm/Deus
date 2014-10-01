@@ -8,7 +8,7 @@
 (*Created by Mathematica Plugin for IntelliJ IDEA*)
 (*Establish from GalAster's template*)
 (**)
-(*Author:GalAster*)
+(*Author:酱紫君*)
 (*Creation Date:2017-11-25*)
 (*Copyright: Mozilla Public License Version 2.0*)
 (* ::Program:: *)
@@ -135,11 +135,11 @@ Options[HanoiShow] = {
 	DiskColor -> ColorData["BrightBands"]
 };
 HanoiShow[states_, OptionsPattern[]] := Block[
-	{firststate, background, newStates, pn, gap, xs, HanoiDisk, DrawState, i},
-	firststate = First@states;
-	background = DrawBackground[firststate, OptionValue[TableStyle], OptionValue[PillarStyle]] // Graphics;
-	newStates = Map[mapping[firststate, #]&, states, 1];
-	pn = Length@firststate;
+	{firstState, background, newStates, pn, gap, xs, HanoiDisk, DrawState, i},
+	firstState = First@states;
+	background = DrawBackground[firstState, OptionValue[TableStyle], OptionValue[PillarStyle]] // Graphics;
+	newStates = Map[mapping[firstState, #]&, states, 1];
+	pn = Length@firstState;
 	gap = 1. / GoldenRatio^2;
 	xs = Table[(1 + gap)i, {i, -#, #}]&[(pn - 1) / 2];
 	HanoiDisk[width_, {x0_, y0_}] := {
