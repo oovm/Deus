@@ -38,11 +38,11 @@ Import["https://deus.netlify.com/pkg/Sudoku.wl"];
 
 ### 标准示例
 
-**测试代码:**
+#### 测试代码:
 ```haskell
 Import[]
 ```
 
-**测试输出:**
+#### 测试输出:
 
 
