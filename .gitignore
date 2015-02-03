@@ -15,7 +15,14 @@ docs/.vuepress/public/
 .idea/
 
 # Mathematica 文档
-Documentation/
+Documentation/*index*
+Documentation/*.gen
+Documentation/*.cfs
+Documentation/*.nb
+
 
 # Mathematica 压缩包
 *.WXF
+*.zip
+*.rar
+*.7z

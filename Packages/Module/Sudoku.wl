@@ -353,7 +353,7 @@ SudokuProcess[data_] := FixedPoint[Block[
 ] &, data];
 (* ::Text:: *)
 (*Apply the line simplification function to all rows, columns and sub-grids (rearranged into lines and back again).*)
-SubMatrix3[data_, {i_, j_}] := Table[data[[i + m - 1, j + n - 1]], {m, 3}, {n, 3}]
+SubMatrix3[data_, {i_, j_}] := Table[data[[i + m - 1, j + n - 1]], {m, 3}, {n, 3}];
 FromSubMatrices[data_List] := Flatten[Table[Flatten[SubMatrix3[data, {i, j}], 1], {i, 1, 7, 3}, {j, 1, 7, 3}], 1];
 Options[ApplySudokuLogic] = {};
 ApplySudokuLogic[data_, opts___] := Block[
