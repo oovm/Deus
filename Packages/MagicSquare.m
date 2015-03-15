@@ -1,17 +1,36 @@
-Magic::usage = "Magic2D[n]可以生成n×n的幻方.\r Magic[n,d]生成d维的n阶幻方.";
+Magic::usage = "\!\(\*StyleBox[RowBox[{\"Magic\", \"[\", StyleBox[\"n\", \"TI\"], \"]\"}], \"MR\"]\) 生成 \!\(\*StyleBox[RowBox[{\"n\", \"*\", \"n\"}], \"TI\"]\) 的幻方.\n\!\(\*StyleBox[RowBox[{\"Magic\", \"[\", StyleBox[\"n\", \"TI\"], \",\", StyleBox[\"d\", \"TI\"], \"]\"}], \"MR\"]\) 生成 \!\(\*StyleBox[\"d\", \"TI\"]\) 维的 \!\(\*StyleBox[\"n\", \"TI\"]\) 阶幻方.";
 MagicQ::usage = "MagicQ[n]检测一个n×n幻方.\r MagicQ[n,3D]检测一个n×n×n幻立方.";
 MagicSquare::usage = "幻方包提供了一系列幻方的算法.";
 Begin["`MagicSquare`"];
-Version$MagicSquare = "V1.5";
-Updated$Version = "2018-08-11";
+Version$MagicSquare = "V1.6";
+Updated$Version = "2019-12-09";
+
+
+
 Magic::nosol = "无解.";
 Magic::nodef = "无定义.";
-Magic::novpn = "数据库请求失败,你可能需要VPN,或者你要求的数据量太过巨大,可以使用 TimeConstraint 选项增加请求时长.";
-Magic[n_, 3] := Magic3D[n];
-Magic[n_, "3D"] := Magic3DShow@Magic3D[n];
+Magic::novpn = "数据库请求失败, 你可能需要VPN, 或者您要求的数据量太过巨大, 请可以使用 TimeConstraint 选项增加请求时长.";
 Options[Magic] = {Method -> "Simple", TimeConstraint -> 5};
-Magic[n_, d_, OptionsPattern[]] := TimeConstrained[MagicLinker[n, d, OptionValue[Method]], OptionValue[TimeConstraint], Message[Magic2D::novpn]];
+Magic[n_?Internal`PositiveIntegerQ, ops : OptionsPattern[]] := Magic[n, 2, ops];
+Magic[n_?Internal`PositiveIntegerQ, d_?Internal`PositiveIntegerQ, OptionsPattern[]] := GeneralUtilities`Scope[
+	If[
+		OptionValue[Method] === "Simple",
+		If[d == 2, Return@Magic2D[n]];
+		If[d == 3, Return@Magic3D[n]];
+	];
+	TimeConstrained[
+		MagicLinker[n, d, OptionValue[Method]],
+		OptionValue[TimeConstraint],
+		Message[Magic2D::novpn]
+	]
+];
+(*Magic[n_, "3D"] := Magic3DShow@Magic3D[n];*)
+
+
 MagicLinker[n_, d_, p_] := URLExecute["http://magichypercube.com/rest/hypercube/" <> p <> "/" <> ToString[n] <> "/" <> ToString[d] <> "/true", "CSV"];
+
+
+
 Magic2D[n_?OddQ] := Block[
 	{p = Range[n]},
 	Outer[Plus, p, p - (n + 3) / 2] ~ Mod ~ n * n + Outer[Plus, p, 2p - 2] ~ Mod ~ n + 1
@@ -24,8 +43,7 @@ Magic2D[n_ /; n ~ Mod ~ 4 == 0] := Block[
 	M + K1(n * n + 1 - 2M)
 ] // Experimental`CompileEvaluate;
 Magic2D[2] := Message[Magic::nosol];
-Magic2D[n_?EvenQ] := Block[
-	{p, M, i, j, k},
+Magic2D[n_?EvenQ] := GeneralUtilities`Scope[
 	p = n / 2;
 	M = Magic2D[p];
 	M = ArrayFlatten@{{M, M + 2p^2}, {M + 3p^2, M + p^2}};
@@ -40,15 +58,16 @@ Magic2D[n_?EvenQ] := Block[
 ];
 Magic2D[x_] := Message[Magic::nodef];
 Magic3D[n_?OddQ] := Table[n^2Mod[i - j + k - 1, n] + n Mod[i - j - k, n] + Mod[i + j + k - 2, n] + 1, {i, 1, n}, {j, 1, n}, {k, 1, n}];
-Magic3D[n_ /; n ~ Mod ~ 4 == 0] := Block[
-	{QMagic, FMagic},
+Magic3D[n_ /; n ~ Mod ~ 4 == 0] := GeneralUtilities`Scope[
 	QMagic[x_] := If[1 <= x <= n / 2, 0, 1];
 	FMagic[i_, j_, k_] := Mod[i + j + k + QMagic[i] + QMagic[j] + QMagic[k], 2];
 	Table[If[FMagic[i, j, k] == 1, (i - 1)n^2 + (j - 1)n + k, 1 - k + n(1 - j + n(1 - i + n))], {i, 1, n}, {j, 1, n}, {k, 1, n}]
 ];
+
+
+
 Magic3D[2] := Message[Magic::nosol];
-Magic3D[n_?EvenQ] := Block[
-	{QMagic, XMagic, d, upTab, downTab},
+Magic3D[n_?EvenQ] := GeneralUtilities`Scope[
 	QMagic[x_] := If[1 <= x <= n / 2, 0, 1];
 	XMagic[x_] := Min[x, n + 1 - x];
 	u = Mod[XMagic[i] - XMagic[j] + XMagic[k], n / 2] + 1;
@@ -67,19 +86,18 @@ Magic3DShow[n_] := {
 	MatrixForm /@ Magic3D[n]
 };
 MagicQ[input_, "3D"] := Magic3DQ[input];
-MagicQ[matrix_] :=
-	Block[{SRow, SCol},
-		Echo["该矩阵所有数字总和为" <> ToString@Total[Total /@ matrix]];
-		SRow = Total /@ matrix;
-		Echo["该矩阵各行和分别为" <> ToString@SRow];
-		If[SameQ @@ SRow, Echo["通过"], Return[False]];
-		SCol = Total /@ (Transpose@matrix);
-		Echo["该矩阵各列和分别为" <> ToString@SCol];
-		If[SameQ @@ SCol, Echo["通过"], Return[False]];
-		Echo["该矩阵主对角线和为" <> ToString@Tr@matrix <> ",该矩阵主副角线和为" <> ToString@Tr[Reverse /@ matrix]];
-		If[SameQ[Tr@matrix, Tr[Reverse /@ matrix]], True, False]
-	];
-Magic3DQ[x3d_] := Block[{y3d, z3d, SF, LF, TF},
+MagicQ[matrix_] := GeneralUtilities`Scope[
+	Echo["该矩阵所有数字总和为" <> ToString@Total[Total /@ matrix]];
+	SRow = Total /@ matrix;
+	Echo["该矩阵各行和分别为" <> ToString@SRow];
+	If[SameQ @@ SRow, Echo["通过"], Return[False]];
+	SCol = Total /@ (Transpose@matrix);
+	Echo["该矩阵各列和分别为" <> ToString@SCol];
+	If[SameQ @@ SCol, Echo["通过"], Return[False]];
+	Echo["该矩阵主对角线和为" <> ToString@Tr@matrix <> ",该矩阵主副角线和为" <> ToString@Tr[Reverse /@ matrix]];
+	If[SameQ[Tr@matrix, Tr[Reverse /@ matrix]], True, False]
+];
+Magic3DQ[x3d_] := GeneralUtilities`Scope[
 	Echo["该立方矩阵所有数字总和为" <> ToString@Total@Flatten@x3d];
 	{y3d, z3d} = {Transpose[x3d, {3, 1, 2}], Transpose[x3d, {2, 3, 1}]};
 	SF = {Total@Flatten@#& /@ x3d, Total@Flatten@#& /@ y3d, Total@Flatten@#& /@ z3d};
@@ -94,7 +112,7 @@ Magic3DQ[x3d_] := Block[{y3d, z3d, SF, LF, TF},
 ];
 SetAttributes[{Magic, Magic2D, Magic3D}, Listable];
 SetAttributes[
-	{Magic, MagicQ},
-	{Protected, ReadProtected}
+	{},
+	{ReadProtected}
 ];
 End[]
