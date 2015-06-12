@@ -19,6 +19,7 @@ Documentation/*index*
 Documentation/*.gen
 Documentation/*.cfs
 Documentation/*.nb
+Kernel/*.nb
 
 
 # Mathematica 压缩包
