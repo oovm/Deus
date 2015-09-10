@@ -1,0 +1,5 @@
+Kernel/PackPaclet.nb
+Packages/__Dev/temp2.nb
+Packages/__Dev/密码盘的研究.nb
+Packages/__Dev/技能覆盖研究.nb
+Packages/__Dev/面积幻方.nb
