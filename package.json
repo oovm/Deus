@@ -1,11 +1,11 @@
 {
 	"devDependencies": {
-			
+
 	},
 	"scripts": {
-		"docs:dev": "vuepress dev docs",
-		"docs:build": "vuepress build docs",
-		"docs:deploy": "cp -R Packages/Module docs/.vuepress/public/pkg && vuepress build docs"
+		"docs:dev": "vuepress dev projects/deus-docs",
+		"docs:build": "vuepress build projects/deus-docs",
+		"docs:deploy": "cp -R projects/wolfram-bind/Packages/Module projects/deus-docs/.vuepress/public/pkg && vuepress build deus-docs"
 	},
 	"dependencies": {
 

@@ -13,6 +13,7 @@ docs/.vuepress/public/
 # idea 配置文件
 *.iml
 .idea/
+time-travel.*
 
 # Mathematica 文档
 Documentation/*index*
