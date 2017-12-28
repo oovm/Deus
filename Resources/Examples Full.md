@@ -1,12 +1,30 @@
 # Change Log Full
 
-| 版本号 | 更新内容
-|-------|--------
-| 0.3.2 | XXX
-| 0.3.1 | XXX
-| 0.3.0 | 开始编写数织包
-| 0.2.1 | 删去了 Magic3D,3DQ,3DShow 等函数的全局定义.
-| 0.2.0 | 移植幻方包 (来自 BiGridGeneration)
-| 0.1.0 | 移植汉诺塔包 (来自 BiGridGeneration)
-| 0.0.0 | 从 BiGridGeneration 项目中独立
-|       | 原项目名称为 Gaming
+### 汉诺塔动画
+
+```Mathematica
+gifs=HanoiShow@HanoiMove[10,Pillar->4];
+Export["HanoiTower.gif",gifs,"AnimationRepetitions"->Infinity,"DisplayDurations"->0.5]
+```
+
+<div align=center>
+<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/HanoiTower.gif" alt="3D幻方"/>
+</div>
+
+### 三维幻方
+
+<div align=center>
+<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/Magic3D.gif" alt="3D幻方"/>
+</div>
+
+### 数织二维码
+
+<div align=center>
+<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/Nonograms.png" alt="数织二维码" width = "400"/>
+</div>
+
+### 珠玑妙算
+
+<div align=center>
+<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/DigitMaster.png" alt="数织二维码"/>
+</div>
