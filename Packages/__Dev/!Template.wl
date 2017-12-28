@@ -10,9 +10,9 @@
 (**)
 (*Author:我是作者*)
 (*Creation Date:我是创建日期*)
-(*Copyright:CC4.0 BY+NA+NC*)
+(*Copyright: GPL-3.0*)
 (**)
-(*该软件包遵从CC协议:署名、非商业性使用、相同方式共享*)
+(*该软件包遵从GNU通用公共许可证.*)
 (**)
 (*这里应该填这个函数的介绍*)
 (* ::Section:: *)
@@ -43,5 +43,8 @@ ExampleFunction[2]="我就是个示例函数,什么功能都没有";
 (* ::Subsection::Closed:: *)
 (*附加设置*)
 End[] ;
-
+SetAttributes[
+	{ },
+	{Protected,ReadProtected}
+];
 EndPackage[];
