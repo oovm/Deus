@@ -49,7 +49,7 @@
 ### 珠玑妙算
 
 <div align=center>
-<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/DigitMaster.png" alt="数织二维码" width = "400"/>
+<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/DigitMaster.png" alt="数织二维码"/>
 </div>
 
 - 演示代码
