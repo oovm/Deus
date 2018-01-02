@@ -108,10 +108,10 @@ In[4]:= "如图"
 |[<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/Logo_Zhihu.png" alt="知乎链接" width = "100" align=center />](https://www.zhihu.com/people/GalAster)|[<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/Logo_QQ.png" alt="QQ链接" width = "100" align=center />](https://jq.qq.com/?_wv=1027&k=5BqFya1)
 
 
-GNU General Public License  V3.0
 
-Copyright by
 
-https://www.pixiv.net/member_illust.php?mode=medium&illust_id=54252014
 
-Artist: https://www.pixiv.net/member.php?id=1050942
+©Copyright by Mozilla Public License Version 2.0
+
+
+
