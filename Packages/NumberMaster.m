@@ -1,20 +1,18 @@
-(* ::Package:: *)
-
-
-
-Poker24::usage = "\:7ecf\:5178\:95ee\:9898,4\:5f20\:724c\:7b9724\:70b9";
-Calculate100::usage = "\:7ecf\:5178\:95ee\:9898,9\:4e2a\:6570\:5b57\:6dfb\:52a0\:7b26\:53f7\:8ba1\:7b97100";
-Proof1926::usage = "\:7ecf\:5178\:95ee\:9898, \:67d0\:4e24\:4e2a\:4eba\:7269\:751f\:65e5\:7684\:6570\:5b57\:8bba\:8bc1";
-
-
-NumberMaster::usage = "\:7a0b\:5e8f\:5305\:7684\:8bf4\:660e,\:8fd9\:91cc\:6284\:4e00\:904d";
-Begin["`NumberMaster`"];
-
-
+Poker24::usage = "经典问题,4张牌算24点\n
+	Poker[pList],使用列表pList中的数字计算24点\n
+	选项 Number->24,指定计算24点\n
+	选项 Extension->Min,允许使用阶乘,对数,开根凑配\n
+	选项 Extension->All,允许使用所有的二元运算凑配\n
+";
+Calculate100::usage = "经典问题,9个数字添加符号计算100";
+Proof1926::usage = "经典问题, 某两个人物生日的数字论证\n
+	Proof1926[num1,num2],两个数字间论证相等\n
+	Proof1926[num1,num2,Number->num3],论证两个数字等于第三个数字\n
+";
+NumberMaster::usage = "程序包的说明,这里抄一遍";
+Begin["`Private`"];
 NumberMaster$Version="V1.6";
 NumberMaster$LastUpdate="2017-12-24";
-
-
 div[a_,0]:=ComplexInfinity;
 log[a_,b_]:=Log[a,b];
 pow[a_,b_]:=Power[a,b];
@@ -46,13 +44,9 @@ root[a_,b_]:=pow[a,1/b];
 opsName=Thread[ {plus,minus,times,div,pow,log,root,aa,cc}->
 				{Plus,Subtract,Times,Divide,Power,Log,Surd,FactorialPower,Binomial}
 ];
-
-
 treeR[1]=n;
 treeR[n_]:=treeR[n]=Table[o[treeR[a],treeR[n-a]],{a,1,n-1}];
 treeC[n_]:=Flatten[treeR[n]//.{o[a_List,b_]:>(o[#,b]&/@a),o[a_,b_List]:>(o[a,#]&/@b)}];
-
-
 PokerFilter[l_Integer]:=Block[
 	{nn,oo,ff,cal},
 	nn=Array[ToExpression["n"<>ToString@#]&,l];
@@ -87,7 +81,7 @@ Poker24All[nList_List,goal_Integer]:=Block[
 	ext=AbortProtect@Extract[pts,Position[Map[mc,pts,{3}],0,{3}]];
 	DeleteDuplicatesBy[ext,ReleaseHold[#/.Thread[nList->CharacterRange[97,96+l]]]&]
 ];
-Poker24::memb = "\:8ba1\:7b97 `1` \:7684\:8fc7\:7a0b\:4e2d\:4e0d\:80fd\:542b\:6709 `1` !";
+Poker24::memb = "计算 `1` 的过程中不能含有 `1` !";
 Options[Poker24]={Number->24,Extension->Off};
 Poker24[input_,OptionsPattern[]]:=Block[
 	{goal,ans},
@@ -97,12 +91,10 @@ Poker24[input_,OptionsPattern[]]:=Block[
 		Off,Poker24Off[input,goal],
 		Min,Poker24Min[input,goal],
 		All,Poker24All[input,goal],
-		Max,Echo["","\:8be5\:51fd\:6570\:5c1a\:672a\:5b8c\:6210!"],
+		Max,Echo["","该函数尚未完成!"],
 		__,Poker24Off[input,goal,Rule->OptionValue[Extension]]
 	]/.opsName
 ];
-
-
 next`ops=HoldForm/@{Plus,Times,Divide,Subtract};
 (nextOp[#1]=#2)&@@@Most@Transpose@{next`ops,RotateLeft@next`ops};
 next`children=True;
@@ -128,19 +120,17 @@ formattingRules={
 };
 formattingRev={next`Plus->Plus,next`Times->Times,next`Divide->Divide};
 doMath[expr_]:=expr/.List->Composition[FromDigits,List]//ReleaseHold;
-Calculate100[input_List,target_Integer]:=Block[
+Calculate100[input_List,target_Integer:100]:=Block[
 	{curr=input,ans={},dup},
 	CheckAbort[Quiet@While[curr=!=False,
 		If[doMath@curr==target,
 			PrintTemporary[curr/.formattingRules];
 			AppendTo[ans,curr/.formattingRules]];
 			curr=next@curr
-		];Echo["\:6240\:6709\:8ba1\:7b97\:5df2\:5b8c\:6210!","\:8fd0\:7b97: "], Echo["\:7528\:6237\:4e2d\:65ad\:4e86\:8ba1\:7b97!","\:8fd0\:7b97: "]];
+		];Echo["所有计算已完成!","运算: "], Echo["用户中断了计算!","运算: "]];
 	dup=ReleaseHold[#/.Thread[input->CharacterRange[97,96+Length@input]]]&;
 	DeleteDuplicatesBy[HoldForm/@ans/.formattingRev,dup]
 ];
-
-
 Options[Calculate100TC]={TimeConstraint->2};
 Calculate100TC[input_List,target_Integer,OptionsPattern[]]:=Block[
 	{curr=input,ans={}},
@@ -152,7 +142,7 @@ Calculate100TC[input_List,target_Integer,OptionsPattern[]]:=Block[
 	DeleteDuplicatesBy[HoldForm/@ans/.formattingRev,ReleaseHold[#/.Thread[input->CharacterRange[97,96+Length@input]]]&]
 ];
 he=HoldForm[a_]==HoldForm[b_]:>HoldForm[InputForm[a==b]];
-Proof1926::ntime=" `1` s\:5185\:627e\:4e0d\:5230\:89e3, \:8bf7\:7ed9 TimeConstraint +1s.";
+Proof1926::ntime=" `1` s内找不到解, 请给 TimeConstraint +1s.";
 Options[Proof1926]={Number->Automatic,TimeConstraint->1};
 Proof1926[input_,target_,OptionsPattern[]]:=Block[
 	{inl=IntegerDigits@ToExpression[input],
@@ -171,13 +161,8 @@ Proof1926[input_,target_,OptionsPattern[]]:=Block[
 	out=err@ans==tar/.he;
 	If[OptionValue[Number]===Automatic,Return[out],Return[out==OptionValue[Number]]]
 ];
-
-
 End[] ;
 SetAttributes[
 	{Poker24,Calculate100,Proof1926},
 	{Protected,ReadProtected}
 ];
-
-
-
