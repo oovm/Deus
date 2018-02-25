@@ -1,5 +1,6 @@
 # Deus — Nogame Nolife
 
+[![Build Status](https://travis-ci.org/GalAster/Deus.svg?branch=master)](https://travis-ci.org/GalAster/Deus)
 [![Mathematica](https://img.shields.io/badge/Mathematica-%3E%3D10.0-brightgreen.svg)](https://www.wolfram.com/mathematica/)
 [![Release Vision](https://img.shields.io/badge/release-v0.5.0-ff69b4.svg)](https://github.com/GalAster/Deus/releases)
 [![Repo Size](https://img.shields.io/github/repo-size/GalAster/Deus.svg)](https://github.com/GalAster/Deus.git)
