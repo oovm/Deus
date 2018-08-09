@@ -1,3 +1,6 @@
+# Windows
+Thumbs.db
+
 # idea 配置文件
 *.iml
 .idea/*

@@ -5,7 +5,7 @@
 [![Release Vision](https://img.shields.io/badge/release-v0.5.0-ff69b4.svg)](https://github.com/GalAster/Deus/releases)
 [![Repo Size](https://img.shields.io/github/repo-size/GalAster/Deus.svg)](https://github.com/GalAster/Deus.git)
 
-![Background](https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/MainPage.jpg)
+![MainPage.jpg](https://i.loli.net/2018/08/09/5b6b88ff0ad75.jpg)
 
 ## ![项目简介](https://raw.githubusercontent.com/GalAster/Deus/master/Resources/ico/board-game-blocks.png) Introduce
 
@@ -32,25 +32,25 @@
 ### 三维幻方
 
 <div align=center>
-<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/Magic3D.gif" alt="3D幻方"/>
+<img src="https://i.loli.net/2018/08/09/5b6b88f97fce4.gif" alt="3D幻方"/>
 </div>
 
 ### 汉诺塔动画
 
 <div align=center>
-<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/HanoiTower.gif" alt="3D幻方"/>
+<img src="https://i.loli.net/2018/08/09/5b6b8900b7966.gif" alt="汉诺塔"/>
 </div>
 
 ### 数织二维码
 
 <div align=center>
-<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/Nonograms.png" alt="数织二维码" width = "400"/>
+<img src="https://i.loli.net/2018/08/09/5b6b88ec543c6.png" alt="数织二维码" width = "400"/>
 </div>
 
 ### 珠玑妙算
 
 <div align=center>
-<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/DigitMaster.png" alt="数织二维码"/>
+<img src="https://i.loli.net/2018/08/09/5b6b88edb8a20.png" alt="数织二维码"/>
 </div>
 
 - 演示代码
@@ -106,9 +106,7 @@ In[4]:= "如图"
 
 |知乎主页|QQ群聊| 
 |:-:|:-:|
-|[<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/Logo_Zhihu.png" alt="知乎链接" width = "100" align=center />](https://www.zhihu.com/people/GalAster)|[<img src="https://raw.githubusercontent.com/GalAster/Deus/master/Resources/pic/Logo_QQ.png" alt="QQ链接" width = "100" align=center />](https://jq.qq.com/?_wv=1027&k=5BqFya1)
-
-
+|[<img src="https://i.loli.net/2018/08/09/5b6b88f539e51.png" alt="知乎链接" width = "100" align=center />](https://www.zhihu.com/people/GalAster)|[<img src="https://i.loli.net/2018/08/09/5b6b88f5802f0.png" alt="QQ链接" width = "100" align=center />](https://jq.qq.com/?_wv=1027&k=5BqFya1)
 
 
 
