@@ -19,7 +19,7 @@ PacletUninstall["Deus"]
 ```
 
 ::: warning 兼容性要求
-[![Release Vision](https://img.shields.io/badge/release-v0.3.x-ff69b4.svg)](https://github.com/GalAster/Illusory/releases)
-[![Mathematica](https://img.shields.io/badge/Mathematica-%3E%3D11.3-brightgreen.svg)](https://www.wolfram.com/mathematica/)
+[![Release Vision](https://img.shields.io/badge/release-v0.5.x-ff69b4.svg)](https://github.com/GalAster/Illusory/releases)
+[![Mathematica](https://img.shields.io/badge/Mathematica-%3E%3D10.1-brightgreen.svg)](https://www.wolfram.com/mathematica/)
 [![Mathematica](https://img.shields.io/badge/Encode-UTF8-red.svg)](https://www.wolfram.com/mathematica/)
 :::

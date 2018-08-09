@@ -4,11 +4,11 @@ module.exports = {
 		'/': {
 			lang: 'zh-CN',
 			title: 'Deus',
-			description: 'No game no life'
+			description: 'No game no life ♕'
 		}
 	},
 	themeConfig: {
-		repo: 'GalAster/Illusory',
+		repo: 'GalAster/Deus',
 		editLinks: true,
 		docsDir: 'docs',
 		markdown: {
@@ -22,6 +22,24 @@ module.exports = {
 					'/Start/Developer.md',
 					'/Start/Editor.md',
 					'/Start/EditorAdv.md'
+				]
+			},
+			{
+				title: 'MagicSquare 模块',
+				children: [
+					'/MagicSquare/'
+				]
+			},
+			{
+				title: 'NumberMaster 模块',
+				children: [
+					'/NumberMaster/'
+				]
+			},
+			{
+				title: 'HanoiTower 模块',
+				children: [
+					'/HanoiTower/'
 				]
 			}
 		]
