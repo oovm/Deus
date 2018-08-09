@@ -1,6 +1,6 @@
 # Functions
 
-NumberMaster 模块
+> NumberMaster 模块包含了一系列经典的数字谜题.
 
 - 模块可单独加载
 
@@ -10,7 +10,7 @@ Import["https://deus.netlify.com/pkg/NumberMaster.wl"];
 
 ## Poker24
 
-经典谜题, 24点
+> 经典谜题, 24点
 
 ### 参数说明
 
@@ -43,12 +43,12 @@ Import["https://deus.netlify.com/pkg/NumberMaster.wl"];
 
 ### 标准示例
 
-**测试代码:**
+#### 测试代码:
 ```haskell
 Import[]
 ```
 
-**测试输出:**
+#### 测试输出:
 
 
 ## Calculate100
@@ -70,20 +70,14 @@ Import[]
 
 `List`, 包含所有的解.
 
-四则运算的情况下是高速且不重不漏的
-
-::: warning 不重不漏
-重复被定义为在因式分解算符下同构
-:::
-
 ### 标准示例
 
-**测试代码:**
+#### 测试代码:
 ```haskell
 Import[]
 ```
 
-**测试输出:**
+#### 测试输出:
 
 ## Proof1926
 
@@ -107,9 +101,9 @@ Import[]
 
 ### 标准示例
 
-**测试代码:**
+#### 测试代码:
 ```haskell
 Import[]
 ```
 
-**测试输出:**
+#### 测试输出:
