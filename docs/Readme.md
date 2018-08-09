@@ -8,14 +8,14 @@ footer: MPL2.0 Licensed | Copyright © 2018-2018 GalAster
 ### 一键安装
 
 ```haskell
-PacletInstall["Illusory","Site"->"http://m.vers.site/"]
+PacletInstall["Deus","Site"->"http://m.vers.site/"]
 ```
 
 当然更新和卸载也是一键搞定
 
 ```haskell
-PacletUpdate["Illusory","Site"->"http://m.vers.site/"]
-PacletUninstall["Illusory"]
+PacletUpdate["Deus","Site"->"http://m.vers.site/"]
+PacletUninstall["Deus"]
 ```
 
 ::: warning 兼容性要求
