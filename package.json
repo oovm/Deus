@@ -1,0 +1,12 @@
+{
+	"devDependencies": {
+		"vuepress": "^0.10.2"
+	},
+	"scripts": {
+		"docs:dev": "vuepress dev docs",
+		"docs:build": "vuepress build docs",
+		"docs:deploy": "cp -R Packages/Module docs/.vuepress/public/pkg && vuepress build docs"
+	},
+	"dependencies": {
+	}
+}
