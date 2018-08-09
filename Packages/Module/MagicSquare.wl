@@ -1,9 +1,41 @@
+(* ::Package:: *)
+(* ::Title:: *)
+(*MagicSquare*)
+(* ::Subchapter:: *)
+(*程序包介绍*)
+(* ::Text:: *)
+(*Mathematica Package*)
+(*Created by Mathematica Plugin for IntelliJ IDEA*)
+(*Establish from GalAster's template*)
+(**)
+(*Author:GalAster*)
+(*Creation Date:2016-07-12*)
+(*Copyright: Mozilla Public License Version 2.0*)
+(* ::Program:: *)
+(*1.软件产品再发布时包含一份原始许可声明和版权声明。*)
+(*2.提供快速的专利授权。*)
+(*3.不得使用其原始商标。*)
+(*4.如果修改了源代码，包含一份代码修改说明。*)
+(**)
+(* ::Text:: *)
+(*这里应该填这个函数的介绍*)
+(* ::Section:: *)
+(*函数说明*)
+BeginPackage["MagicSquare`"];
 Magic::usage = "Magic[n]可以生成n×n的幻方.\r Magic[n,d]生成d维的n阶幻方.";
 MagicQ::usage = "MagicQ[n]检测一个n×n幻方.\r MagicQ[n,3D]检测一个n×n×n幻立方.";
+(* ::Section:: *)
+(*程序包正体*)
+(* ::Subsection::Closed:: *)
+(*主设置*)
 MagicSquare::usage = "幻方包提供了一系列幻方的算法.";
-Begin["`MagicSquare`"];
+Begin["`Private`"];
+(* ::Subsection::Closed:: *)
+(*主体代码*)
 MagicSquare$Version = "V1.4.0";
 MagicSquare$LastUpdate = "2017-12-17";
+(* ::Subsubsection:: *)
+(*幻方选项代码*)
 Magic::nosol = "无解.";
 Magic::nodef = "无定义.";
 Magic::novpn = "数据库请求失败,你可能需要VPN,或者你要求的数据量太过巨大,可以使用 TimeConstraint 选项增加请求时长.";
@@ -11,6 +43,8 @@ Options[Magic] = {Method -> "Simple", TimeConstraint -> 5};
 Magic[n_, d_, OptionsPattern[]] := TimeConstrained[MagicLinker[n, d, OptionValue[Method]], OptionValue[TimeConstraint], Message[Magic::novpn]];
 MagicLinker[n_, d_, p_] := URLExecute["http://magichypercube.com/rest/hypercube/" <> p <> "/" <> ToString[n] <> "/" <> ToString[d] <> "/true", "CSV"];
 SetAttributes[{Magic, Magic3D}, Listable];
+(* ::Subsubsection:: *)
+(*幻方生成核心代码*)
 Magic[n_?OddQ] := Block[{p}, p = Range[n];
 Outer[Plus, p, p - (n + 3) / 2] ~ Mod ~ n * n + Outer[Plus, p, 2p - 2] ~ Mod ~ n + 1];
 Magic[n_ /; n ~ Mod ~ 4 == 0] :=
@@ -36,6 +70,8 @@ Magic[n_?EvenQ] :=
 		M
 	];
 Magic[x_] := Message[Magic::nodef];
+(* ::Subsubsection:: *)
+(*3D幻方生成核心代码*)
 Magic[n_, 3] := Magic3D[n];
 Magic3D[n_?OddQ] := Table[n^2Mod[i - j + k - 1, n] + n Mod[i - j - k, n] + Mod[i + j + k - 2, n] + 1, {i, 1, n}, {j, 1, n}, {k, 1, n}];
 Magic3D[n_ /; n ~ Mod ~ 4 == 0] :=
@@ -65,6 +101,8 @@ Magic3DShow[n_] := {
 	MatrixForm /@ Magic3D[n]
 };
 Magic[n_, "3D"] := Magic3DShow@Magic3D[n];
+(* ::Subsubsection:: *)
+(*幻方判别过程*)
 MagicQ[input_, "3D"] := Magic3DQ[input];
 MagicQ[matrix_] :=
 	Block[{SRow, SCol},
@@ -91,8 +129,11 @@ Magic3DQ[x3d_] := Block[{y3d, z3d, SF, LF, TF},
 	Echo["该立方矩阵各对角线和分别为" <> ToString@TF];
 	If[SameQ @@ TF, True, False]
 ];
+(* ::Subsection::Closed:: *)
+(*附加设置*)
+End[];
 SetAttributes[
 	{Magic, MagicQ},
 	{Protected, ReadProtected}
 ];
-End[]
+EndPackage[]
