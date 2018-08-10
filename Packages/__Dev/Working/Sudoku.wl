@@ -33,10 +33,7 @@ Begin["`Private`"];
 (* ::Subsubsection:: *)
 (*Todo: 完成数独程序块*)
 SetAttributes[{SudokuFX3,SudokuExc},HoldAll];
-(*本程序包数独的标准格式是一个9×9的矩阵,里面只能填0到9,0表示待解*)
-(*Coded by Mr. Wizard's
-Thanks for Morphie's commit,it's helpful
-but it's still very hard to understand.*)
+(*数独的标准格式是一个9×9的矩阵,里面只能填0到9,0表示待解*)
 (*SudokuLinked returns a list of the values at all locations that constrain the passed location,Delete is used*)
 (*to ensure that the value of the passed location is not included in the list*)
 SudokuLinked[m_][u_,v_,r_,c_]:={m[[u,All,r]]~Delete~{v,c},m[[All,v,All,c]]~Delete~{u,r},m[[u,v]]~Delete~{r,c}};
