@@ -2,6 +2,16 @@
 
 Sudoku 模块
 
+
+::: tip Rule
+约定 n 阶数独是一个 n^2×n^2 的矩阵
+正数表示原本就存在的值, 也就是谜题
+0 表示未知的值, 需要求解的部分
+负数表示用户填入的部分, 或者求解函数返回的部分
+其他非整数非数字都按填 0 处理
+:::
+
+
 - 模块未完成
 
 - 模块可单独加载
@@ -10,15 +20,12 @@ Sudoku 模块
 Import["https://deus.netlify.com/pkg/Sudoku.wl"];
 ```
 
-
-
 ## Magic
 
 ### 参数说明
 
-::: tip Magic[n,dim:2]
+::: tip Sudoku[n,dim:2]
 - n 类型为 `Integer`, 表示幻方的阶
-- dim 类型为 `Integer`, 表示幻方的维度
 :::
 
 ### 可选项
@@ -28,11 +35,6 @@ Import["https://deus.netlify.com/pkg/Sudoku.wl"];
 ### 返回值
 
 `MagicObject`
-
-::: danger Magic
-讲道理要不是 matlab 里这么叫的, Magic 这种说一半的做法是不可能作为函数名的.
-:::
-
 
 ### 标准示例
 
