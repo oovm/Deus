@@ -92,7 +92,7 @@ PokerFilter[l_Integer] := Block[
 ];
 Options[Poker24Off] = {Rule -> {Plus, Subtract, Times, div}};
 Poker24Off[nList_List, goal_Integer, OptionsPattern[]] := Block[
-	{l = Length@nList, ops, filter, pts, cas},
+	{l = Length@nList, ops, filter, pts, cas, e},
 	ops = OptionValue[Rule];
 	filter = PokerFilter[l];
 	pts = Outer[filter @@ Join[#1, #2]&, Tuples[ops, l - 1], Permutations[nList], 1];
@@ -108,7 +108,7 @@ Poker24Min[nList_List, goal_Integer] := Block[
 	ext = AbortProtect@Extract[pts, Position[Map[mc, pts, {3}], 0, {3}]];
 	DeleteDuplicatesBy[ext, ReleaseHold[# /. Thread[nList -> CharacterRange[97, 96 + l]]]&]
 ];
-Poker24All[nList_List, goal_Integer] := Block[
+Poker24Max[nList_List, goal_Integer] := Block[
 	{l = Length@nList, ops, filter, pts, ext, mc},
 	ops = {Plus, Subtract, Times, Divide, pow, log, root, FactorialPower, Binomial};
 	filter = PokerFilter[l];
@@ -117,17 +117,18 @@ Poker24All[nList_List, goal_Integer] := Block[
 	ext = AbortProtect@Extract[pts, Position[Map[mc, pts, {3}], 0, {3}]];
 	DeleteDuplicatesBy[ext, ReleaseHold[# /. Thread[nList -> CharacterRange[97, 96 + l]]]&]
 ];
+Poker24One[__] = "该函数未完成";
 Poker24::memb = "计算 `1` 的过程中不能含有 `1` !";
-Options[Poker24] = {Number -> 24, Extension -> Off};
+Options[Poker24] = {Number -> 24, Extension -> Off, FindInstance -> False};
 Poker24[input_, OptionsPattern[]] := Block[
 	{goal, ans},
 	goal = OptionValue[Number];
+	If[TrueQ@OptionValue[FindInstance], Return@Poker24One[input, goal]];
 	If[MemberQ[input, goal], Return@Message[Poker24::memb, goal]];
 	ans = Quiet@Switch[OptionValue[Extension],
 		Off, Poker24Off[input, goal],
 		Min, Poker24Min[input, goal],
-		All, Poker24All[input, goal],
-		Max, Echo["", "该函数尚未完成!"],
+		Max, Poker24Max[input, goal],
 		__, Poker24Off[input, goal, Rule -> OptionValue[Extension]]
 	] /. opsName
 ];
@@ -138,7 +139,7 @@ next`ops = HoldForm /@ {Plus, Times, Divide, Subtract};
 next`children = True;
 SetAttributes[{next`Plus, next`Times}, Flat];
 next[{i_}] := False;
-next[l_List] := HoldForm[Plus][{l[[1]]}, l[[2 ;;]]];
+next[l_List] := HoldForm[Plus][{First@l}, Rest@l];
 next[op_[arg1_, arg2_]] /; next`children := With[{res = next[arg1]}, op[res, arg2] /; res =!= False];
 next[op_[arg1_, arg2_]] /; next`children := With[{res = next[arg2]}, op[arg1, res] /; res =!= False];
 next[HoldForm[Subtract][arg1_, arg2 : {_}]] := False;
@@ -188,7 +189,7 @@ Options[Proof1926] = {Number -> Automatic, TimeConstraint -> 1};
 Proof1926[input_, target_, OptionsPattern[]] := Block[
 	{inl = IntegerDigits@ToExpression[input],
 		str = StringPartition[ToString[target], 1],
-		ops, tar, ans, out
+		ops, tar, ans, out, err, he
 	},
 	ops = RandomChoice[{8, 7, 4, 1} -> {"+", "-", "*", "^"}, Length@str - 1];
 	tar = If[OptionValue[Number] === Automatic, ToExpression@StringJoin@Riffle[str, ops], OptionValue[Number]];
@@ -196,7 +197,10 @@ Proof1926[input_, target_, OptionsPattern[]] := Block[
 	err = If[# == {}, Return@Message[Proof1926::ntime, OptionValue[TimeConstraint]], RandomChoice@#]&;
 	If[OptionValue[Number] === Automatic,
 		tar = ToExpression[StringJoin@Riffle[str, ops], StandardForm, HoldForm],
-		tar = Calculate100TC[str // StringJoin // ToExpression // IntegerDigits, OptionValue[Number], TimeConstraint -> OptionValue[TimeConstraint]];
+		tar = Calculate100TC[
+			str // StringJoin // ToExpression // IntegerDigits,
+			OptionValue[Number], TimeConstraint -> OptionValue[TimeConstraint]
+		];
 		tar = err@tar;
 	];
 	out = err@ans == tar /. he;
