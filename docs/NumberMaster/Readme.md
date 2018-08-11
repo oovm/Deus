@@ -38,6 +38,7 @@ Import["https://deus.netlify.com/pkg/NumberMaster.wl"];
 
 ::: warning 不重不漏
 重复被定义为在因式分解算子下同构
+比如 (-a)×(-b) 被认为和 a×b 同构
 :::
 
 
