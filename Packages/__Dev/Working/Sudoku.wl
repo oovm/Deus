@@ -61,12 +61,26 @@ SudokuObject /: MakeBoxes[SudokuObject[expr_], TraditionalForm] := With[
 ];
 
 
+
+Sudoku::lowRank = "数独的最低阶数为 2";
+Sudoku::tooEmpty = "空格的数目不能高于 `1`";
+Options[SudokuNew] = {MatrixForm -> False};
+SudokuNew[num_Integer : 3, rm_Integer : 40, OptionsPattern[]] := Block[
+	{n = num^2, seed, solution, game},
+	If[n <= 1, Message[Sudoku::lowRank];Return[]];
+	If[rm > n^2, Message[Sudoku::tooEmpty, n^2];Return[]];
+	seed = ReplacePart[Table["", {n}, {n}], Thread[RandomSample[Tuples[Range@n, 2], n] -> Range@n]];
+	game = ReplacePart[SudokuSolverSeed[seed], Thread[RandomSample[Tuples[Range[n], 2], rm] -> 0]];
+	If[TrueQ@Options[MatrixForm], game, SudokuForm[game]]
+];
+
+
+
+
 (* ::Subsubsection:: *)
-(*Todo: 完成数独程序块*)
+(*数独求解代码*)
 
-
-
-
+(*SudokuSolverMethod["Seed"]*)
 blockPosition[{i_, j_}, size_] := blockPosition[{i, j}, size] = Sequence @@ Partition[Range[size], Sqrt[size]][[Ceiling /@ ({i, j} / Sqrt[size])]];
 placeNumber[n_, {i_, j_}, extra_String : ""] := Block[
 	{size = Length[choices]},
@@ -90,24 +104,17 @@ placeNumber[n_, {i_, j_}, extra_String : ""] := Block[
 		Throw[placedNumbers = size^2 + 1]
 	]
 ];
-
-
-
 singleNumber[v_] := With[
 	{u = Flatten[Cases[Split[Sort[Flatten[v]]], {_}]]},
-	If[u != {},
-		With[
-			{w = ((Position[v, #1] & ) /@ u)[[All, 1, 1]]},
-			If[
-				Unequal @@ w,
-				ReplacePart[v, List /@ u, List /@ w, List /@ Range[Length[u]]],
-				Throw[placedNumbers = size^2 + 1]
-			]
-		], v
-	]
+	If[u != {}, With[
+		{w = ((Position[v, #1] & ) /@ u)[[All, 1, 1]]},
+		If[
+			Unequal @@ w,
+			ReplacePart[v, List /@ u, List /@ w, List /@ Range[Length[u]]],
+			Throw[placedNumbers = size^2 + 1]
+		]
+	], v]
 ];
-
-
 reduceWith[rule_] := With[
 	{t = Sqrt[Length[choices]]},
 	choices = rule /@ choices;
@@ -116,15 +123,10 @@ reduceWith[rule_] := With[
 	choices = Flatten[(MapThread[Join, ##1] & ) /@ Partition[(Partition[#1, t] & ) /@ choices, t], 1];
 	If[placedNumbers != Count[choices, {}, {-2}], Throw[placedNumbers = size^2 + 1]]
 ];
-
-
 twins[v_] := With[
 	{z = Cases[Split[Sort[Cases[v, {_, _}]]], {a_, a_} :> a]},
 	If[z == {}, v, (If[MemberQ[z, #1], #1, Complement[#1, Flatten[z]]] & ) /@ v]
 ];
-
-
-
 reduceFromBlocks := Block[
 	{v, aux},
 	aux = Partition[Range[size], Sqrt[size]];
@@ -150,18 +152,14 @@ reduceFromBlocks := Block[
 	];
 	If[placedNumbers != Count[choices, {}, {-2}], Throw[placedNumbers = size^2 + 1]]
 ];
-
-SudokuSolverSeed[
-	arg_,
-	nSol : _Integer | Infinity : 1,
-	printSplit : True | False : True,
-	extra : "" | "diagonal" | "antidiagonal" | "both" : ""
-] := Block[
-	{mat, size, choices, tobeDone, result, solutions, placedNumbers, z},
-	mat = Which[Head[arg] === Grid, arg[[1]], Head[arg] === SparseArray, Normal[arg], True, arg];
+Options[SudokuSolverSeed] = {Number -> 1, Style -> ""};
+SudokuSolverSeed[mat_, OptionsPattern[]] := Block[
+	{size, choices, tobeDone, result, solutions, placedNumbers, extra},
+	extra = OptionValue[Style];
+	(* extra = "" | "diagonal" | "antidiagonal" | "both" *)
 	size = Length[mat];
 	choices = Array[Range[size] & , {size, size}];
-	result = Array[0 & , {size, size}];
+	result = ConstantArray[0 , {size, size}];
 	z = Position[mat, _Integer?Positive];
 	placedNumbers = Length[z];
 	Catch[MapThread[placeNumber[#1, #2, extra] & , {Extract[mat, z], z}];
@@ -171,24 +169,23 @@ SudokuSolverSeed[
 	solutions = {};
 	tobeDone = If[placedNumbers <= size^2, {choices}, {}];
 	splitCounter = 0;
-	While[tobeDone != {} && Length[solutions] < nSol,
+	While[tobeDone != {} && Length[solutions] < OptionValue[Number],
 		choices = tobeDone[[-1]];
 		placedNumbers = Count[choices, {}, {-2}];
 		Catch[reduceWith[singleNumber]];
 		If[placedNumbers <= size^2, placedNumbers = Count[choices, {}, {-2}]];
 		tobeDone = Most[tobeDone];
-		While[placedNumbers < size^2,
-			Catch[While[(z = Position[choices, {_}]) != {} && placedNumbers < size^2,
+		While[placedNumbers < size^2, Catch[
+			While[(z = Position[choices, {_}]) != {} && placedNumbers < size^2,
 				placedNumbers = placedNumbers + Length[z];
-				MapThread[placeNumber[#1, #2,
-					extra] & , {Flatten[Extract[choices, z]], z}];
+				MapThread[placeNumber[#1, #2, extra] & , {Flatten[Extract[choices, z]], z}];
 				reduceWith[singleNumber]
 			];
 			z = choices;
 			reduceWith[twins];
 			If[z != choices, Throw[reduceWith[singleNumber]]];
 			reduceFromBlocks;
-			If[z != choices, Throw[reduceWith[ singleNumber]]];
+			If[z != choices, Throw[reduceWith[singleNumber]]];
 			If[placedNumbers < size^2,
 				splitCounter++;
 				z = Min[Map[Length, choices, {2}] /. 0 -> size + 1];
@@ -203,24 +200,17 @@ SudokuSolverSeed[
 				AppendTo[tobeDone, ReplacePart[choices, Rest[choices[[pos[[1]], pos[[2]]]]], pos]];
 				choices[[pos[[1]], pos[[2]]]] = Take[choices[[pos[[1]], pos[[2]]]], 1]
 			]
-			]];
+		]];
 		If[placedNumbers == size^2, AppendTo[solutions, result]]
 	];
-	If[nSol == 1 && solutions != {}, solutions[[1]], solutions]
+	If[OptionValue[Number] == 1 && solutions != {}, solutions[[1]], solutions]
 ];
 
 
 
 
 
-
-
-
-
-
-
-
-(*SudokuSolverMethod["LinearProgramming"]*)
+(*SudokuSolverMethod["BitOr"]*)
 SetAttributes[{SudokuFX3, SudokuExc}, HoldAll];
 (*数独的标准格式是一个9×9的矩阵,里面只能填0到9,0表示待解*)
 (*SudokuLinked returns a list of the values at all locations that constrain the passed location,Delete is used*)
@@ -259,7 +249,7 @@ SudokuSplit[board_] /; MatchQ[Flatten@board, {SudokuPof2..}] := Throw[board] ;;
 	SudokuSplit@SudokuLoop@ReplacePart[board, c -> #]& /@ First /@ (2^(Reverse@IntegerDigits[board ~ Extract ~ c, 2] ~ Position ~ 1 - 1))
 ];
 (*0's become 511,everything else becomes 2^(n-1) and the puzzles are partitioned into blocks of 3*)
-SudokuSolverMethod["BitOr"][problem_] := Block[
+SudokuSolverBitOr[problem_] := Block[
 	{encoding = 2^(mat ~ Partition ~ {3, 3} - 1) /. {1 / 2 -> 511}, sol},
 	sol = Log2@Catch[SudokuSplit@SudokuLoop@encoding] + 1;
 	Partition[Flatten@sol, 9]
@@ -267,6 +257,7 @@ SudokuSolverMethod["BitOr"][problem_] := Block[
 (*SudokuSolver is the main solving function,upon completion we have a list of lists of the digits to be summed*)
 (*the base 2 Log and "+1" are there because all work is done with numbers 2^(n-1)*)
 (*"Catch" should get the complete boards Throw'n in SudokuSplit above*)
+
 
 
 
@@ -279,7 +270,7 @@ SudokuLinearBase = Module[
 	rows = Transpose[cols = ConstantArray[Range@9, 9] - 1];
 	Flatten[constrain /@ {blocks, rows, cols}, 1]
 ];
-SudokuSolverMethod["LinearProgramming"][problem_] := Module[
+SudokuSolverLinearProgramming[problem_] := Module[
 	{problemConstraints, allConstraints, lpResult},
 	problemConstraints = Map[List, Join @@ Table[Append[k] /@ Position[problem, k], {k, 9}].{81, 9, 1} - 90];
 	allConstraints = Total[UnitVector[729, #]& /@ #]& /@ Join[
