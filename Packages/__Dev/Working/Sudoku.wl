@@ -1,6 +1,6 @@
 (* ::Package:: *)
 (* ::Title:: *)
-(*Example(样板包)*)
+(*Sudoku(数独)*)
 (* ::Subchapter:: *)
 (*程序包介绍*)
 (* ::Text:: *)
@@ -10,31 +10,35 @@
 (**)
 (*Author:GalAster*)
 (*Creation Date:2016-12-06*)
-(*Copyright:CC4.0 BY+NA+NC*)
+(*Copyright: Mozilla Public License Version 2.0*)
+(* ::Program:: *)
+(*1.软件产品再发布时包含一份原始许可声明和版权声明。*)
+(*2.提供快速的专利授权。*)
+(*3.不得使用其原始商标。*)
+(*4.如果修改了源代码，包含一份代码修改说明。*)
 (**)
-(*该软件包遵从CC协议:署名、非商业性使用、相同方式共享*)
-(**)
+(* ::Text:: *)
 (*这里应该填这个函数的介绍*)
 (* ::Section:: *)
 (*函数说明*)
 BeginPackage["Sudoku`"];
 SudokuObject::usage = "";
+SudokuForm::usage = "";
 SudokuPlot::usage = "";
 (* ::Section:: *)
 (*程序包正体*)
 (* ::Subsection::Closed:: *)
 (*主设置*)
-Sudoku$Version = "V0.2";
-Sudoku$LastUpdate = "2016-12-19";
-OtherGames::usage = "程序包的说明,这里抄一遍";
+Version$Sudoku = "V0.5";
+Updated$Sudoku = "2018-8-11";
+Sudoku::usage = "程序包的说明,这里抄一遍";
 Begin["`Private`"];
 (* ::Subsection::Closed:: *)
 (*主体代码*)
-
-
 (* ::Subsubsection:: *)
 (*Sudoku display*)
 Options[SudokuPlot] = {FontSize -> Large, ImageSize -> Large};
+(*Todo:修复SudokuPlot不兼容非三阶的bug*)
 SudokuPlot[mat_?MatrixQ, OptionsPattern[]] := Module[
 	{bg, color, foo},
 	bg = If[EvenQ[Floor[(#2 - 1) / 3] + Floor[(#1 - 1) / 3] * 3], Lighter[Gray, 0.5], White]&;
@@ -62,6 +66,8 @@ SudokuObject /: MakeBoxes[SudokuObject[expr_], TraditionalForm] := With[
 
 
 
+(* ::Subsubsection:: *)
+(*Sudoku generation*)
 Sudoku::lowRank = "数独的最低阶数为 2";
 Sudoku::tooEmpty = "空格的数目不能高于 `1`";
 Options[SudokuNew] = {MatrixForm -> False};
@@ -69,7 +75,7 @@ SudokuNew[num_Integer : 3, rm_Integer : 40, OptionsPattern[]] := Block[
 	{n = num^2, seed, solution, game},
 	If[n <= 1, Message[Sudoku::lowRank];Return[]];
 	If[rm > n^2, Message[Sudoku::tooEmpty, n^2];Return[]];
-	seed = ReplacePart[Table["", {n}, {n}], Thread[RandomSample[Tuples[Range@n, 2], n] -> Range@n]];
+	seed = ReplacePart[ConstantArray[0, {n, n}], Thread[RandomSample[Tuples[Range@n, 2], n] -> Range@n]];
 	game = ReplacePart[SudokuSolverSeed[seed], Thread[RandomSample[Tuples[Range[n], 2], rm] -> 0]];
 	If[TrueQ@Options[MatrixForm], game, SudokuForm[game]]
 ];
@@ -79,7 +85,10 @@ SudokuNew[num_Integer : 3, rm_Integer : 40, OptionsPattern[]] := Block[
 
 (* ::Subsubsection:: *)
 (*数独求解代码*)
-
+(* ::CodeText:: *)
+(*参考资料*)
+(*http://search.wolfram.com/?query=sudoku*)
+(* ::Text:: *)
 (*SudokuSolverMethod["Seed"]*)
 blockPosition[{i_, j_}, size_] := blockPosition[{i, j}, size] = Sequence @@ Partition[Range[size], Sqrt[size]][[Ceiling /@ ({i, j} / Sqrt[size])]];
 placeNumber[n_, {i_, j_}, extra_String : ""] := Block[
@@ -191,7 +200,7 @@ SudokuSolverSeed[mat_, OptionsPattern[]] := Block[
 				z = Min[Map[Length, choices, {2}] /. 0 -> size + 1];
 				z = Position[choices, _?(Length[#1] == z & ), {-2}];
 				pos = {{0, 0}, 3 * size};
-				Do[ With[
+				Do[With[
 					{m = Count[{choices[[z[[i, 1]]]], choices[[All, z[[i, 2]]]], choices[[blockPosition[z[[i]], size]]]}, {}, {-2}]},
 					If[m < pos[[2]], pos = {z[[i]], m}]
 				], {i, 1, Length[z]}
@@ -206,25 +215,33 @@ SudokuSolverSeed[mat_, OptionsPattern[]] := Block[
 	If[OptionValue[Number] == 1 && solutions != {}, solutions[[1]], solutions]
 ];
 
-
-
+(*SudokuSolverMethod["Nest"]*)
+(*Todo:将算法扩展到高阶*)
+SudokuSolverNest[sudoku_,upto_:16,lim_:1024]:=Block[
+	{next,ans},
+	next=Table[Table[ReplacePart[s,#1->n],{n,#2}]&@@First@SortBy[{#,Complement[Range@9,s[[First@#]],s[[;;,Last@#]],Catenate@Extract[Partition[s,{3,3}],Quotient[#,3,-2]]]}&/@Position[s,0,{2}],Length@Last@#&],{s,#}]&;
+	ans=NestWhileList[Join@@Take[next@#,UpTo[lim]]&,{sudoku},!FreeQ[#,0]&,1,lim]
+];
 
 
 (*SudokuSolverMethod["BitOr"]*)
+(*Todo:将算法扩展到高阶*)
 SetAttributes[{SudokuFX3, SudokuExc}, HoldAll];
-(*数独的标准格式是一个9×9的矩阵,里面只能填0到9,0表示待解*)
+(* ::Text:: *)
 (*SudokuLinked returns a list of the values at all locations that constrain the passed location,Delete is used*)
 (*to ensure that the value of the passed location is not included in the list*)
 SudokuLinked[m_][u_, v_, r_, c_] := {m[[u, All, r]] ~ Delete ~ {v, c}, m[[All, v, All, c]] ~ Delete ~ {u, r}, m[[u, v]] ~ Delete ~ {r, c}};
-(*SudokuPof2 is 1|2|4|8|...|256*)
 SudokuPof2 = Alternatives @@ (2^Range[0, 8]);
 SudokuFX1 = BitOr @@ Cases[#, SudokuPof2, -1]&;
 SudokuFX2 = BitOr[#, #2] - #&;
+(* ::Text:: *)
+(*SudokuPof2 is 1|2|4|8|...|256*)
 (*SudokuFX1 is used to find all the values that are already claimed by SudokuLinked locations*)
 (*SudokuFX2 then used to subtract out those cases from the unsolved locations*)
 (*note HoldAll attr above:SudokuFX3 and SudokuExc are the only two functions which directly modify the board*)
 SudokuFX3[m_] := (m[[##]] = SudokuFX2[SudokuFX1@SudokuLinked[m][##], m[[##]]])&;
 SudokuExc[m_][c__] := If[# != {}, {m[[c]]} = #, ""]&@Cases[SudokuFX2[BitOr @@ #, m[[c]]]& /@ Flatten /@ SudokuLinked[m]@c, Except[0], 1, 1];
+(* ::Text:: *)
 (*between them SudokuLoop and SudokuSplit combine to solve the sudoku puzzle*)
 (*each puzzle location is used as a bit vector to show possibles,i.e.511 means all are possible,*)
 (*256 means only 8 is possible,1 means only 0 is possible (we're using 0-8,instead of 1-9)*)
@@ -234,17 +251,19 @@ SudokuLoop[board_] := Module[
 	{m = board},
 	(FixedPoint[Block[{good = Position[m, Except[SudokuPof2, _Integer], {-1}]}, SudokuFX3[m] @@@ good;SudokuExc[m] @@@ good]&, {}];m)
 ];
+(* ::Text:: *)
 (*returns the position of the element {w,x,y,z} that is most nearly a power of 2,for example 48 has only*)
 (*two possibles:4 or 5 (48=2^4+2^5)*)
 SudokuNear = Position[#, Min@#, -1, 1][[1]]&[Map[# ~ Count ~ 1&, IntegerDigits[#, 2, 9], {-2}] /. {1 -> 10}]&;
+(* ::Text:: *)
 (*bad puzzle boards (those with a 0=no possibles) are replaced with an empty sequence,which effectively*)
 (*backtracks,going on to the next ReplacePart substitution (see below),solved boards are Throw'n,*)
 (*and the rest are recursively solved.Solving involves working on locations that are nearly solved,*)
 (*ReplacePart replaces those locations with all possible values,lowest to highest,for example*)
 (*48 (possibles=4 or 5) would be replaced by 16 (2^4),then 32 (2^5)*)
 SudokuSplit[board_] /; MemberQ[board, 0, {-1}] := Sequence[];
-SudokuSplit[board_] /; MatchQ[Flatten@board, {SudokuPof2..}] := Throw[board] ;;
-	SudokuSplit[board_] := With[
+SudokuSplit[board_] /; MatchQ[Flatten@board, {SudokuPof2..}] := Throw[board];
+SudokuSplit[board_] := With[
 	{c = SudokuNear@board},
 	SudokuSplit@SudokuLoop@ReplacePart[board, c -> #]& /@ First /@ (2^(Reverse@IntegerDigits[board ~ Extract ~ c, 2] ~ Position ~ 1 - 1))
 ];
@@ -263,6 +282,7 @@ SudokuSolverBitOr[problem_] := Block[
 
 
 (*SudokuSolverMethod["LinearProgramming"]*)
+(*Todo:将算法扩展到高阶*)
 SudokuLinearBase = Module[
 	{constrain, blocks, rows, cols},
 	constrain[blk_] := Join @@ Table[Outer[Plus, Range[9], (Position[blk, k] - 1).{81, 9}], {k, Min[blk], Max[blk]}];
@@ -288,6 +308,84 @@ SudokuSolverLinearProgramming[problem_] := Module[
 	Partition[FirstPosition[#, 1][[1]]& /@ Partition[lpResult, 9], 9]
 ];
 
+
+
+
+
+(* ::Text:: *)
+(*SudokuSolverMethod["Logic"]*)
+(*Todo:需要大幅修改,Print改Echo, 加入递归限制*)
+(* ::Text:: *)
+(*LineSimplify uses a "level 1" logic, in that it can eliminate values once a value is found to be one value in one place.*)
+(*LineSimplify could be extended to eliminate when two values are known in two places eg {1,2},{1,2} allows us to  remove 1 and 2 from other entries.*)
+(*And {1,2,3},{1,2,3},{1,2,3}, eliminates 1,2,3 from others. etc*)
+LineSimplify[data_List] := Block[{known, d2},
+	known = Cases[data, {n_} -> n];
+	(*Find all positions with only one possible value*)
+	If[Length[Union[known]] < Length[known] || (Count[data, {}] > 0), Throw[Contradiction]];
+	(*If the same number is known twice, then we have a conflict*)
+	(*If there are no remaining possible values for a position then we have an error*)
+	d2 = Map[If[Length[#] === 1, #, Complement[#, known]]&, data];
+	(*Eliminate the known values from each position, except those positions that are length 1 and thus known*)
+	(*If a value only occurs in once place on a line then all other possibilities can be removed from that entry.*)
+	(*Repeat for all numbers.*)
+	d2 /. Map[{___, #, ___} -> {#}&, Cases[Frequencies[Flatten[d2]], {1, n_} -> n]]
+];
+(* ::Text:: *)
+(*A function to apply all logic currently supported for a single line in isolation. *)
+(*1. Eliminate values that are known from other positions *)
+(*2. Search for numbers that occur only once and set them as known*)
+SudokuProcess[data_] := FixedPoint[Block[
+	{workingData = #},
+	workingData = Map[LineSimplify, workingData];
+	workingData = Transpose[Map[LineSimplify, Transpose[workingData]]];
+	workingData = FromSubMatrices[Map[LineSimplify, FromSubMatrices[workingData]]]
+] &, data];
+(* ::Text:: *)
+(*Apply the line simplification function to all rows, columns and sub-grids (rearranged into lines and back again).*)
+SubMatrix3[data_, {i_, j_}] := Table[data[[i + m - 1, j + n - 1]], {m, 3}, {n, 3}]
+FromSubMatrices[data_List] := Flatten[Table[Flatten[SubMatrix3[data, {i, j}], 1], {i, 1, 7, 3}, {j, 1, 7, 3}], 1]
+Options[ApplySudokuLogic] = {};
+ApplySudokuLogic[data_, opts___] := Block[
+	{
+		firstUnsolved, firstUnsolvedPosition, step,SudokuSolvedQ,
+		workingData = Catch[FixedPoint[SudokuProcess, data]]
+	(*Apply the logic steps until no more progres is made*)
+	},
+	SudokuSolvedQ[data_] := Dimensions[data] === {9, 9, 1};
+	If[workingData === Contradiction, Throw[Contradiction]];
+	(*If a contradiction is arrived at, throw the error state up a level in the recursion*)
+	If[SudokuSolvedQ[workingData], workingData,
+	(*If the problem is solved, stop*)
+		firstUnsolved = First[Cases[workingData, {n_Integer, m__Integer}, {2}]];
+		(*Otherwise find the first unsolved position possible values*)
+		If[firstUnsolved === {}, Throw[Contradiction]];
+		(* If there are no possible values, throw an error*)
+		firstUnsolvedPosition = First[Position[workingData, firstUnsolved]];
+		Print["Guessing ", First[firstUnsolved], " at ", firstUnsolvedPosition];
+		step = Catch[ApplySudokuLogic[ReplacePart[workingData, Take[firstUnsolved, 1], firstUnsolvedPosition], opts]];
+		(* Choose the first of the possible values and attempt to solve again*)
+		If[step === Contradiction,
+			Print["Guess ", First[firstUnsolved], " at ", firstUnsolvedPosition, " failed. Must be one of ", Rest[firstUnsolved]];
+			Catch[ApplySudokuLogic[ReplacePart[workingData, Rest[firstUnsolved], firstUnsolvedPosition], opts]],
+		(*If a contradiction results from the guess, eliminate this possibility and try to solve again*)
+			step
+		(*Otherwise return the result*)
+		]
+	]
+];
+SudokuSolveLogic[data_] := Block[
+	{encoding},
+	encoding = Map[If[Head[#] === Integer, {#}, Range[9]]&, data, {2}];
+	Partition[Flatten@Catch[ApplySudokuLogic[encoding]], 9];
+];
+
+
+
+
+
+(* ::Subsection::Closed:: *)
+(*附加设置*)
 End[];
 SetAttributes[
 	{ },

@@ -8,7 +8,7 @@
 (*Created by Mathematica Plugin for IntelliJ IDEA*)
 (*Establish from GalAster's template*)
 (**)
-(*Author:酱紫君*)
+(*Author:GalAster*)
 (*Creation Date:2017-11-25*)
 (*Copyright: Mozilla Public License Version 2.0*)
 (* ::Program:: *)
