@@ -1,33 +1,32 @@
 # Deus — Nogame Nolife
 
-[![Build Status](https://travis-ci.org/GalAster/Deus.svg?branch=master)](https://travis-ci.org/GalAster/Deus)
+[![Build Status](https://travis-ci.org/Moe-Net/Deus.svg?branch=master)](https://travis-ci.org/Moe-Net/Deus)
 [![Mathematica](https://img.shields.io/badge/Mathematica-%3E%3D10.0-brightgreen.svg)](https://www.wolfram.com/mathematica/)
-[![Release Vision](https://img.shields.io/badge/release-v0.5.0-ff69b4.svg)](https://github.com/GalAster/Deus/releases)
-[![Repo Size](https://img.shields.io/github/repo-size/GalAster/Deus.svg)](https://github.com/GalAster/Deus.git)
+[![Release Vision](https://img.shields.io/badge/release-v0.5.0-ff69b4.svg)](https://github.com/Moe-Net/Deus/releases)
+[![Repo Size](https://img.shields.io/github/repo-size/Moe-Net/Deus.svg)](https://github.com/Moe-Net/Deus.git)
 
 ![MainPage.jpg](https://i.loli.net/2018/08/09/5b6b88ff0ad75.jpg)
 
-## ![项目简介](https://raw.githubusercontent.com/GalAster/Deus/master/Resources/ico/board-game-blocks.png) Introduce
+## ![项目简介](https://raw.githubusercontent.com/Moe-Net/Deus/master/Resources/ico/board-game-blocks.png) Introduce
 
 
 
-## ![安装方式](https://raw.githubusercontent.com/GalAster/Deus/master/Resources/ico/board-game-map.png) Install
+## ![安装方式](https://raw.githubusercontent.com/Moe-Net/Deus/master/Resources/ico/board-game-map.png) Install
 
-#### 手动安装
+#### 发行版本
 
-- 点击release下载最新的安装包
+```Mathematica
 
-  - release 版本不带说明文档
+```
 
-- 解压到任意`$Path`路径下
+#### 开发版本
 
-  - 如果选择手动安装那么升级也要手动升级
+```bash
+cd `wolframscript -code 'FileNameJoin[{$UserBaseDirectory, "Applications"}]'`
+git clone https://github.com/Moe-Net/Deus.git --depth 20
+```
 
-#### 自动安装
-
-- 使用``BTools` ``的部署功能
-
-## ![意见建议](https://raw.githubusercontent.com/GalAster/Deus/master/Resources/ico/board-game-box.png) Show Time!
+## ![意见建议](https://raw.githubusercontent.com/Moe-Net/Deus/master/Resources/ico/board-game-box.png) Show Time!
 
 ### 三维幻方
 
@@ -59,13 +58,13 @@
 Needs["Deus`"]
 In[1]:= MagicShow[Magic[3,3],3]
 In[2]:= HanoiShow@HanoiMove[10, Pillar -> 4] // ListAnimate
-In[3]:= NonogramGenerate["https://github.com/GalAster/Deus",Method->"QR"]
+In[3]:= NonogramGenerate["https://github.com/Moe-Net/Deus",Method->"QR"]
 In[4]:= "如图"
 ```
 
-- [查看完整演示](https://github.com/GalAster/Deus/blob/master/Resources/Examples%20Full.md)
+- [查看完整演示](https://github.com/Moe-Net/Deus/blob/master/Resources/Examples%20Full.md)
 
-## ![计划项目](https://raw.githubusercontent.com/GalAster/Deus/master/Resources/ico/battleship.png) Todo List
+## ![计划项目](https://raw.githubusercontent.com/Moe-Net/Deus/master/Resources/ico/battleship.png) Todo List
 
 - [x] 汉诺塔
   - [x] 三柱汉诺塔任意解
@@ -86,28 +85,29 @@ In[4]:= "如图"
 - [ ] n 皇后
 - [ ] 约瑟夫游戏
 
-- [查看完整计划](https://github.com/GalAster/Deus/blob/master/Resources/Todo%20List%20Full.md)
+- [查看完整计划](https://github.com/Moe-Net/Deus/blob/master/Resources/Todo%20List%20Full.md)
 
 
-## ![更新日志](https://raw.githubusercontent.com/GalAster/Deus/master/Resources/ico/hourglass.png) Change Log
+## ![更新日志](https://raw.githubusercontent.com/Moe-Net/Deus/master/Resources/ico/hourglass.png) Change Log
 
 | 版本号 |最近更新|
-|:-----:| --- 
+|:-----:| ---
 | 0.5.0 | Bugfix Ver
 | 0.4.3 | 增加1926数字验证
 | 0.4.2 | 增加凑100游戏
 | 0.4.1 | 优化24点算法
-| Older | [查看完整记录](https://github.com/GalAster/Deus/blob/master/Resources/Change%20Log%20Full.md)
+| Older | [查看完整记录](https://github.com/Moe-Net/Deus/blob/master/Resources/Change%20Log%20Full.md)
 
-## ![意见建议](https://raw.githubusercontent.com/GalAster/Deus/master/Resources/ico/board-games-with-roles.png) Ideas
+## ![意见建议](https://raw.githubusercontent.com/Moe-Net/Deus/master/Resources/ico/board-games-with-roles.png) Ideas
 
 ### 联系方式
 
+QQ群: 1014125
 
-|知乎主页|QQ群聊| 
-|:-:|:-:|
-|[<img src="https://i.loli.net/2018/08/09/5b6b88f539e51.png" alt="知乎链接" width = "100" align=center />](https://www.zhihu.com/people/GalAster)|[<img src="https://i.loli.net/2018/08/09/5b6b88f5802f0.png" alt="QQ链接" width = "100" align=center />](https://jq.qq.com/?_wv=1027&k=5BqFya1)
+### License
 
+The application is under **Mozilla Public License v2**.
 
+©Copyright picture, icons and packages.
 
-©Copyright by Mozilla Public License Version 2.0
+For all the ©Copyright see: [License Log Full](https://github.com/Moe-Net/Geass/blob/master/Resources/Full%20License%20Log.md).

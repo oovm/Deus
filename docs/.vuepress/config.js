@@ -7,6 +7,9 @@ module.exports = {
 			description: 'No game no life ♕'
 		}
 	},
+	head: [
+		['link', {rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.5.1/katex.min.css'}]
+	],
 	themeConfig: {
 		repo: 'GalAster/Deus',
 		editLinks: true,
@@ -51,5 +54,10 @@ module.exports = {
 			}
 		]
 	},
-	serviceWorker: true
+	serviceWorker: true,
+	markdown: {
+		config: md => {
+			md.use(require("markdown-it-katex"));
+		}
+	}
 };
