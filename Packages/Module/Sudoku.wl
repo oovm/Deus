@@ -36,6 +36,15 @@ Begin["`Private`"];
 (* ::Subsection::Closed:: *)
 (*主体代码*)
 (* ::Subsubsection:: *)
+(*辅助代码*)
+SudokuString = Partition[ToExpression@Characters@#, 9]&;
+SudokuAllowable[s_] := {#, Complement[Range@9, s[[First@#]], s[[;;, Last@#]], Catenate@Extract[Partition[s, {3, 3}], Quotient[#, 3, -2]]]}& /@ Position[s, 0, {2}];
+(*Todo:SudokuUniqueQ*)
+
+
+
+
+(* ::Subsubsection:: *)
 (*Sudoku display*)
 Options[SudokuPlot] = {FontSize -> Large, ImageSize -> Large};
 (*Todo:修复SudokuPlot不兼容非三阶的bug*)
@@ -79,8 +88,8 @@ SudokuNew[num_Integer : 3, rm_Integer : 40, OptionsPattern[]] := Block[
 	game = ReplacePart[SudokuSolverSeed[seed], Thread[RandomSample[Tuples[Range[n], 2], rm] -> 0]];
 	If[TrueQ@Options[MatrixForm], game, SudokuForm[game]]
 ];
-
-
+(*Todo:使用远程数据库生成唯一数独*)
+(*Todo:SudokuUnique*)
 
 
 (* ::Subsubsection:: *)
@@ -217,10 +226,11 @@ SudokuSolverSeed[mat_, OptionsPattern[]] := Block[
 
 (*SudokuSolverMethod["Nest"]*)
 (*Todo:将算法扩展到高阶*)
-SudokuSolverNest[sudoku_,upto_:16,lim_:1024]:=Block[
-	{next,ans},
-	next=Table[Table[ReplacePart[s,#1->n],{n,#2}]&@@First@SortBy[{#,Complement[Range@9,s[[First@#]],s[[;;,Last@#]],Catenate@Extract[Partition[s,{3,3}],Quotient[#,3,-2]]]}&/@Position[s,0,{2}],Length@Last@#&],{s,#}]&;
-	ans=NestWhileList[Join@@Take[next@#,UpTo[lim]]&,{sudoku},!FreeQ[#,0]&,1,lim]
+SudokuSolverNest[sudoku_, lim_ : 16] := Block[
+	{next , ans = {sudoku} },
+	next = Table[Table[ReplacePart[s, #1 -> n], {n, #2}]& @@ First@SortBy[SudokuAllowable[s], Length@Last@#&], {s, #}]&;
+	While[!FreeQ[ans, 0], ans = Join @@ Take[next@ans, UpTo@lim]];
+	Return[ans]
 ];
 
 
@@ -344,13 +354,13 @@ SudokuProcess[data_] := FixedPoint[Block[
 (* ::Text:: *)
 (*Apply the line simplification function to all rows, columns and sub-grids (rearranged into lines and back again).*)
 SubMatrix3[data_, {i_, j_}] := Table[data[[i + m - 1, j + n - 1]], {m, 3}, {n, 3}]
-FromSubMatrices[data_List] := Flatten[Table[Flatten[SubMatrix3[data, {i, j}], 1], {i, 1, 7, 3}, {j, 1, 7, 3}], 1]
+FromSubMatrices[data_List] := Flatten[Table[Flatten[SubMatrix3[data, {i, j}], 1], {i, 1, 7, 3}, {j, 1, 7, 3}], 1];
 Options[ApplySudokuLogic] = {};
 ApplySudokuLogic[data_, opts___] := Block[
 	{
-		firstUnsolved, firstUnsolvedPosition, step,SudokuSolvedQ,
+		firstUnsolved, firstUnsolvedPosition, step, SudokuSolvedQ,
 		workingData = Catch[FixedPoint[SudokuProcess, data]]
-	(*Apply the logic steps until no more progres is made*)
+	(*Apply the logic steps until no more progress is made*)
 	},
 	SudokuSolvedQ[data_] := Dimensions[data] === {9, 9, 1};
 	If[workingData === Contradiction, Throw[Contradiction]];
