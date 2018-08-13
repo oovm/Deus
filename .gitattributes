@@ -7,7 +7,6 @@
 *.exe filter=lfs diff=lfs merge=lfs -text
 *.cfs filter=lfs diff=lfs merge=lfs -text
 *.cfs filter=lfs diff=lfs merge=lfs -text
-*.lock filter=lfs diff=lfs merge=lfs -text
 
 # 屏蔽文档与 build 文件统计
 * text=auto
