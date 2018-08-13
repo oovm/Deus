@@ -14,4 +14,8 @@ docs/.vuepress/public/
 *.iml
 .idea/*
 
+# Mathematica 文档
 Documentation/
+
+# Mathematica 压缩包
+*.WXF
