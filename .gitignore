@@ -19,3 +19,6 @@ Documentation/
 
 # Mathematica 压缩包
 *.WXF
+*.zip
+*.rar
+*.7z
