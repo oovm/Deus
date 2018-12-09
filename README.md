@@ -16,7 +16,7 @@
 #### 发行版本
 
 ```Mathematica
-
+PacletInstall["Deus","Site"->"http://m.vers.site/"]
 ```
 
 #### 开发版本
